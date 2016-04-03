@@ -3,4 +3,5 @@
 namespace InitProgram
 {
 	 int InitProgram();
+	 void SetDebugCallback();
 }

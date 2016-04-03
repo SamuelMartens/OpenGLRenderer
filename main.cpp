@@ -16,6 +16,10 @@ int main()
 
 	/* Create a windowed mode window and its OpenGL context   */
 
+	// Enable debug
+	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
+	glEnable(GL_DEBUG_OUTPUT);
+
 	window = glfwCreateWindow(640, 480, "Hello world", nullptr, nullptr);
 	if (!window)
 	{
@@ -26,6 +30,8 @@ int main()
 
 	if (-1 == InitProgram::InitProgram())
 		return 1;
+
+	InitProgram::SetDebugCallback();
 
 	Graphic::Renderer renderer;
 	Graphic::InitFigure(renderer.vertices, renderer.colors);

@@ -3,6 +3,19 @@
 #include "gl_core_4_3.h"
 #include <iostream>
 
+namespace 
+{
+	void APIENTRY debugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message,const void *param)
+	{
+		printf("%s:%s[%s] (%d): %s\n",
+			glGetString(source),
+			glGetString(type),
+			glGetString(severity),
+			id,
+			message);
+	}
+}
+
 int InitProgram::InitProgram()
 {
 
@@ -16,4 +29,11 @@ int InitProgram::InitProgram()
 	}
 
 	return 0;
+}
+
+
+void InitProgram::SetDebugCallback()
+{
+	glDebugMessageCallback(debugCallback, nullptr);
+	glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
 }
