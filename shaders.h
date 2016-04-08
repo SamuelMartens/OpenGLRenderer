@@ -11,7 +11,7 @@ namespace Shaders
 			layout (location=0) in vec3 VertexPosition;
 	layout (location=1) in vec3 VertexColor;
 		
-	uniform mat3 trans;	
+	uniform mat4 trans;	
 
 			out vec3 Color;
 	
@@ -19,8 +19,8 @@ namespace Shaders
 	{
 		
 		Color = VertexColor;
-		vec3 newPos = trans * VertexPosition;
-		gl_Position = vec4(newPos, 1.0);
+		vec4 newPos = trans * vec4(VertexPosition, 1.0);
+		gl_Position = newPos;
 	}
 )";
 

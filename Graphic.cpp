@@ -146,16 +146,6 @@ int Graphic::Renderer::InitShaders()
 		return 1;
 	}
 
-	/* Set uniforms */
-	transMat = glGetUniformLocation(shaderProgram, "trans");
-	if (-1 == transMat)
-	{
-		std::cout << " Failed to create uniform. \n";
-		return 1;
-	}
-	glm::mat3 trans = ext_glm::rotateZ(1);
-	glUniformMatrix3fv(transMat, 1, GL_FALSE, glm::value_ptr(trans));
-
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glUseProgram(shaderProgram);
 
@@ -166,6 +156,10 @@ int Graphic::Renderer::Init()
 {
 	if (InitShaders() != 0)
 		return 1;
+
+	if (InitUniforms() !=0)
+		std::cout << "Failed to load uniforms \n";
+
 
 	/* Work with vertex buffer array */
 	glGenBuffers(1, &verticesBuffer);
@@ -205,7 +199,21 @@ void Graphic::Renderer::Reload()
 	glBindVertexArray(vertexArrayBuffer);
 
 	glBindBuffer(GL_ARRAY_BUFFER, verticesBuffer);
-	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
 
 	glVertexAttribPointer(static_cast<GLint>(VertexAtrib::VertexCoors), 3, GL_FLOAT, GL_FALSE, 0, NULL);
+}
+
+int Graphic::Renderer::InitUniforms()
+{
+	transMat = glGetUniformLocation(shaderProgram, "trans");
+	if (-1 == transMat)
+		return -1;
+
+	return 0;
+}
+
+void Graphic::Renderer::SetTransMatrix(glm::mat4 &transMat)
+{
+	glUniformMatrix4fv(shaderProgram, 1, GL_FALSE, &transMat[0][0]);
 }

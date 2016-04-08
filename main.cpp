@@ -1,5 +1,6 @@
 #include "InitProgram.h"
 #include "Graphic.h"
+#include "ext_glm.h"
 
 #include <GLFW/glfw3.h>
 #include <vector>
@@ -17,8 +18,8 @@ int main()
 	/* Create a windowed mode window and its OpenGL context   */
 
 	// Enable debug
-	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
-	glEnable(GL_DEBUG_OUTPUT);
+	//glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
+	//glEnable(GL_DEBUG_OUTPUT);
 
 	window = glfwCreateWindow(640, 480, "Hello world", nullptr, nullptr);
 	if (!window)
@@ -41,7 +42,9 @@ int main()
 		return 1;
 	};
 
-	float angle = 0.0001;
+	float angle = 2;
+
+	renderer.SetTransMatrix(ext_glm::rotateZ(angle));
 
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))

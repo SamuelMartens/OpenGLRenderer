@@ -5,21 +5,23 @@
 
 #include <cmath>
 
-glm::mat3 ext_glm::rotateZ(float angle)
+glm::mat4 ext_glm::rotateZ(float angle)
 {
-	float rotateMatrix[9] =
+	float rotateMatrix[16] =
 	{
-		std::cos(angle), 0, -1 * std::sin(angle),
-		std::sin(angle), 0, std::cos(angle),
-		0,               0, 1
+		std::cos(angle), 0, -1 * std::sin(angle), 0,
+		std::sin(angle), 0, std::cos(angle), 0,
+		0,               0, 0, 1,
+		0,               0, 0, 1
 	};
 
-	float rotateMatrix1[9] =
+	float rotateMatrix1[16] =
 	{
-		1, 1, 1,
-		1, 1, 1,
-		1, 1, 1
-	};
+		1, 0, 0, 0,
+		0, 1, 0, 0,
+		0, 0, 1, 0,
+		0, 0, 0, 1
+	}; 
 
-	return glm::make_mat3(rotateMatrix1);
+	return glm::make_mat4(rotateMatrix1);
 }

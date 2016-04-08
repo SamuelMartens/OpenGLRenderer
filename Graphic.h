@@ -3,7 +3,7 @@
 
 #include <vector>
 #include "gl_core_4_3.h"
-
+#include "glm\mat4x4.hpp"
 
 namespace Graphic 
 {
@@ -22,8 +22,10 @@ namespace Graphic
 		~Renderer();
 		int Init();
 		int InitShaders();
+		int InitUniforms();
 		void Draw();
 		void Reload();
+		void SetTransMatrix(glm::mat4 &transMat);
 
 		std::vector<float> vertices;
 		std::vector<float> colors;
