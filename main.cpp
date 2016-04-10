@@ -1,6 +1,5 @@
 #include "InitProgram.h"
 #include "Graphic.h"
-#include "ext_glm.h"
 
 #include <GLFW/glfw3.h>
 #include <vector>
@@ -21,7 +20,7 @@ int main()
 	//glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
 	//glEnable(GL_DEBUG_OUTPUT);
 
-	window = glfwCreateWindow(640, 480, "Hello world", nullptr, nullptr);
+	window = glfwCreateWindow(500, 500, "Hello world", nullptr, nullptr);
 	if (!window)
 	{
 		glfwTerminate();
@@ -42,16 +41,21 @@ int main()
 		return 1;
 	};
 
-	float angle = 2;
-
-	renderer.SetTransMatrix(ext_glm::rotateZ(angle));
+	float angleY = 0;
 
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))
 	{
+
+		/* Clear screen */
+		renderer.ClearScreen();
+
 		/* Render here */
-		//renderer.Reload();
+		renderer.Reload(angleY);
 		renderer.Draw();
+
+		/* Change data here */
+		angleY += 0.0005;
 
 		/* Swap front and back buffers */
 		glfwSwapBuffers(window);

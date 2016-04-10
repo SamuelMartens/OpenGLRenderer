@@ -13,16 +13,104 @@ void Graphic::InitFigure(std::vector<float>& vertices, std::vector<float>& color
 {
 	vertices = 
 	{
-		0.0f, 0.8f, 0.0f,
-		-0.4f, -0.4f, 0.0f,
-		0.4f, -0.4f, 0.0f
+		-0.5f, -0.5f, -0.5f,
+		-0.5f, -0.5f, 0.5f,
+		-0.5f, 0.5f, 0.5f,
+
+		0.5f, 0.5f, -0.5f,
+		-0.5f, -0.5f, -0.5f,
+		-0.5f, 0.5f, -0.5f,
+
+		0.5f, -0.5f, 0.5f,
+		-0.5f, -0.5f, -0.5f,
+		0.5f, -0.5f, -0.5f,
+
+		0.5f, 0.5f, -0.5f,
+		0.5f, -0.5f, -0.5f,
+		-0.5f, -0.5f, -0.5f,
+
+		-0.5f, -0.5f, -0.5f,
+		-0.5f, 0.5f, 0.5f,
+		-0.5f, 0.5f, -0.5f,
+
+		0.5f, -0.5f, 0.5f,
+		-0.5f, -0.5f, 0.5f,
+		-0.5f, -0.5f, -0.5f,
+
+		-0.5f, 0.5f, 0.5f,
+		-0.5f, -0.5f, 0.5f,
+		0.5f, -0.5f, 0.5f,
+
+		0.5f, 0.5f, 0.5f,
+		0.5f, -0.5f, -0.5f,
+		0.5f, 0.5f, -0.5f,
+
+		0.5f, -0.5f, -0.5f,
+		0.5f, 0.5f, 0.5f,
+		0.5f, -0.5f, 0.5f,
+
+		0.5f, 0.5f, 0.5f,
+		0.5f, 0.5f, -0.5f,
+		-0.5f, 0.5f, -0.5f,
+
+		0.5f, 0.5f, 0.5f,
+		-0.5f, 0.5f, -0.5f,
+		-0.5f, 0.5f, 0.5f,
+
+		0.5f, 0.5f, 0.5f,
+		-0.5f, 0.5f, 0.5f,
+		0.5f, -0.5f, 0.5f
 	};
 
 	colors =
 	{
-		1, 0, 0,
-		0 ,1 , 0,
-		0, 0, 1
+		0.0f, 1.0f, 1.0f,
+		0.0f, 1.0f, 1.0f,
+		0.0f, 1.0f, 1.0f,
+
+		1.0f, 1.0f, 0.0f,
+		1.0f, 1.0f, 0.0f,
+		1.0f, 1.0f, 0.0f,
+
+		1.0f, 0.0f, 1.0f,
+		1.0f, 0.0f, 1.0f,
+		1.0f, 0.0f, 1.0f,
+
+		1.0f, 1.0f, 0.0f,
+		1.0f, 1.0f, 0.0f,
+		1.0f, 1.0f, 0.0f,
+
+		0.0f, 1.0f, 1.0f,
+		0.0f, 1.0f, 1.0f,
+		0.0f, 1.0f, 1.0f,
+
+		1.0f, 0.0f, 1.0f,
+		1.0f, 0.0f, 1.0f,
+		1.0f, 0.0f, 1.0f,
+
+		0.0f, 0.0f, 1.0f,
+		0.0f, 0.0f, 1.0f,
+		0.0f, 0.0f, 1.0f,
+
+		1.0f, 0.0f, 0.0f,
+		1.0f, 0.0f, 0.0f,
+		1.0f, 0.0f, 0.0f,
+
+		1.0f, 0.0f, 0.0f,
+		1.0f, 0.0f, 0.0f,
+		1.0f, 0.0f, 0.0f,
+
+		0.0f, 1.1f, 0.0f,
+		0.0f, 1.1f, 0.0f,
+		0.0f, 1.1f, 0.0f,
+
+		0.0f, 1.1f, 0.0f,
+		0.0f, 1.1f, 0.0f,
+		0.0f, 1.1f, 0.0f,
+
+		0.0f, 0.0f, 1.0f,
+		0.0f, 0.0f, 1.0f,
+		0.0f, 0.0f, 1.0f,
 	};
 	
 }
@@ -31,7 +119,8 @@ Graphic::Renderer::Renderer() :
 	vertexArrayBuffer(0),
 	vertShader(0),
 	fragShader(0),
-	shaderProgram(0)
+	shaderProgram(0),
+	transMatLoc(-1)
 {};
 
 Graphic::Renderer::~Renderer()
@@ -160,6 +249,8 @@ int Graphic::Renderer::Init()
 	if (InitUniforms() !=0)
 		std::cout << "Failed to load uniforms \n";
 
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LESS);
 
 	/* Work with vertex buffer array */
 	glGenBuffers(1, &verticesBuffer);
@@ -188,26 +279,21 @@ int Graphic::Renderer::Init()
 	return 0;
 }
 
-void Graphic::Renderer::Draw()
+void Graphic::Renderer::Draw() const
 {
-	glDrawArrays(GL_TRIANGLES, 0, 3);
+	glDrawArrays(GL_TRIANGLES, 0, 36);
 }
 
 
-void Graphic::Renderer::Reload()
+void Graphic::Renderer::Reload(float angle)
 {
-	glBindVertexArray(vertexArrayBuffer);
-
-	glBindBuffer(GL_ARRAY_BUFFER, verticesBuffer);
-	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
-
-	glVertexAttribPointer(static_cast<GLint>(VertexAtrib::VertexCoors), 3, GL_FLOAT, GL_FALSE, 0, NULL);
+	SetTransMatrix(ext_glm::rotateZ(angle) * ext_glm::rotateX(0.2));
 }
 
 int Graphic::Renderer::InitUniforms()
 {
-	transMat = glGetUniformLocation(shaderProgram, "trans");
-	if (-1 == transMat)
+	transMatLoc = glGetUniformLocation(shaderProgram, "trans");
+	if (-1 == transMatLoc)
 		return -1;
 
 	return 0;
@@ -215,5 +301,11 @@ int Graphic::Renderer::InitUniforms()
 
 void Graphic::Renderer::SetTransMatrix(glm::mat4 &transMat)
 {
-	glUniformMatrix4fv(shaderProgram, 1, GL_FALSE, &transMat[0][0]);
+	glUniformMatrix4fv(transMatLoc, 1, GL_FALSE, &transMat[0][0]);
+}
+
+void Graphic::Renderer::ClearScreen() const
+{
+	glClearColor(0, 0, 0, 1);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }

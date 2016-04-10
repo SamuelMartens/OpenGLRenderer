@@ -23,9 +23,10 @@ namespace Graphic
 		int Init();
 		int InitShaders();
 		int InitUniforms();
-		void Draw();
-		void Reload();
+		void Draw() const;
+		void Reload(float angle);
 		void SetTransMatrix(glm::mat4 &transMat);
+		void ClearScreen() const;
 
 		std::vector<float> vertices;
 		std::vector<float> colors;
@@ -39,6 +40,6 @@ namespace Graphic
 		GLuint fragShader;
 
 		/* Matrix */
-		GLint transMat;
+		GLint transMatLoc;
 	};
 }
