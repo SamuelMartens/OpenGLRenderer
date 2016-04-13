@@ -287,7 +287,7 @@ void Graphic::Renderer::Draw() const
 
 void Graphic::Renderer::Reload(float angle)
 {
-	SetTransMatrix(ext_glm::rotateZ(angle) * ext_glm::rotateX(0.2));
+	SetTransMatrix(ext_glm::scale(0.3) * ext_glm::rotateZ(angle) * ext_glm::rotateX(0.2)*ext_glm::move(-0.5));
 }
 
 int Graphic::Renderer::InitUniforms()
