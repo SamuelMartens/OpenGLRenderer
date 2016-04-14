@@ -116,7 +116,6 @@ void Graphic::InitFigure(std::vector<float>& vertices, std::vector<float>& color
 }
 
 Graphic::Renderer::Renderer() :
-	vertexArrayBuffer(0),
 	vertShader(0),
 	fragShader(0),
 	shaderProgram(0),
@@ -125,7 +124,6 @@ Graphic::Renderer::Renderer() :
 
 Graphic::Renderer::~Renderer()
 {
-	glDeleteFramebuffers(1, &vertexArrayBuffer);
 	glDeleteShader(fragShader);
 	glDeleteShader(vertShader);
 	glDeleteProgram(shaderProgram);
@@ -252,36 +250,12 @@ int Graphic::Renderer::Init()
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 
-	/* Work with vertex buffer array */
-	glGenBuffers(1, &verticesBuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, verticesBuffer);
-	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_DYNAMIC_DRAW);
-
-	glGenBuffers(1, &colorBuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
-	glBufferData(GL_ARRAY_BUFFER, colors.size() * sizeof(float), colors.data(), GL_DYNAMIC_DRAW);
-
-	/* Work with vertex buffer array */
-	glGenVertexArrays(1, &vertexArrayBuffer);
-	glBindVertexArray(vertexArrayBuffer);
-
-	glEnableVertexAttribArray(static_cast<GLint>(VertexAtrib::VertexCoors));
-	glEnableVertexAttribArray(static_cast<GLint>(VertexAtrib::Colors));
-
-	glBindBuffer(GL_ARRAY_BUFFER, verticesBuffer);
-	glVertexAttribPointer(static_cast<GLint>(VertexAtrib::VertexCoors), 3, GL_FLOAT, GL_FALSE, 0, NULL);
-
-	glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
-	glVertexAttribPointer(static_cast<GLint>(VertexAtrib::Colors), 3, GL_FLOAT, GL_FALSE, 0, NULL);
-
-	glBindVertexArray(vertexArrayBuffer);
-
 	return 0;
 }
 
 void Graphic::Renderer::Draw() const
 {
-	glDrawArrays(GL_TRIANGLES, 0, 36);
+	
 }
 
 

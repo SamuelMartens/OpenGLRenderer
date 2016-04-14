@@ -1,10 +1,30 @@
 #pragma once
 
+#include "glm\mat4x4.hpp"
+#include "gl_core_4_3.h"
+
 #include <vector>
 
-struct Model
+class Model
 {
+public:
+	int LoadModel(const char* filename);
+	int LoadGlData();
+	void ClearData(bool freeMemory=false) noexcept;
+	void Draw() const;
+	
+	/* Data */
 	std::vector<float> vertices;
 	std::vector<float> normals;
 	std::vector<float> textures;
+	std::vector<size_t> indices;
+
+	/* Matrix */
+	GLint transMatLoc;
+	glm::mat4 transformMat;
+
+	/* Buffers */
+	GLuint vertexArrayBuffer;
+	GLuint verticesBuffer;
+	GLuint normalsBuffer;
 };

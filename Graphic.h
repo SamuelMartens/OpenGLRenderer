@@ -12,7 +12,7 @@ namespace Graphic
 	enum class VertexAtrib
 	{
 		VertexCoors,
-		Colors
+		Normals
 	};
 
 	class Renderer
@@ -25,21 +25,15 @@ namespace Graphic
 		int InitUniforms();
 		void Draw() const;
 		void Reload(float angle);
-		void SetTransMatrix(glm::mat4 &transMat);
 		void ClearScreen() const;
+		void SetTransMatrix(glm::mat4 &transMat);
 
-		std::vector<float> vertices;
-		std::vector<float> colors;
 	private:
-		GLuint vertexArrayBuffer;
-		GLuint verticesBuffer;
-		GLuint colorBuffer;
 
 		GLuint shaderProgram;
 		GLuint vertShader;
 		GLuint fragShader;
 
-		/* Matrix */
 		GLint transMatLoc;
 	};
 }
