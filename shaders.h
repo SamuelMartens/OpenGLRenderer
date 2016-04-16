@@ -47,7 +47,7 @@ namespace Shaders
 		vec3 Kd = vec3(1.0);
 		vec3 Ld = vec3(0.75);	
 		
-		vec3 tnorm = normalize( (trans * vec4(VertexNormal, 0.0)).xyz );
+		vec3 tnorm = normalize((trans * vec4(VertexNormal, 0.0)).xyz);
 		vec4 eyeCoord = trans * vec4(VertexPosition, 1.0);
 		vec3 s = normalize(vec3(lightPosition - eyeCoord));
 		

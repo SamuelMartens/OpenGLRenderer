@@ -249,7 +249,9 @@ int Graphic::Renderer::Init()
 	if (InitUniforms() !=0)
 		std::cout << "Failed to load uniforms \n";
 
-	SetLightPostion(0.95, 0.95, -1);
+	/* Ligth source position */
+	SetLightPostion(0.0, 0.7, -1);
+
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 
@@ -258,7 +260,7 @@ int Graphic::Renderer::Init()
 
 void Graphic::Renderer::Draw(float angle)
 {
-	glm::mat4 trMat = ext_glm::rotateX(0.5) * ext_glm::rotateY(angle) * ext_glm::scale(0.5);
+	glm::mat4 trMat = ext_glm::rotateX(-0.5) * ext_glm::rotateY(angle) * ext_glm::scale(0.5);
 
 
 	for (auto& model: models)
