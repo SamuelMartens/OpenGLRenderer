@@ -1,5 +1,6 @@
 #include "InitProgram.h"
 #include "Graphic.h"
+#include "model.h"
 
 #include <GLFW/glfw3.h>
 #include <vector>
@@ -20,7 +21,7 @@ int main()
 	//glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
 	//glEnable(GL_DEBUG_OUTPUT);
 
-	window = glfwCreateWindow(500, 500, "Hello world", nullptr, nullptr);
+	window = glfwCreateWindow(600, 600, "Hello world", nullptr, nullptr);
 	if (!window)
 	{
 		glfwTerminate();
@@ -33,13 +34,19 @@ int main()
 
 	InitProgram::SetDebugCallback();
 
+	/* Create renderer */
 	Graphic::Renderer renderer;
-	Graphic::InitFigure(renderer.vertices, renderer.colors);
+	
 	if (0 != renderer.Init())
 	{
 		std::cout << "Failed to init renderer";
 		return 1;
 	};
+
+	/* Add models */
+	Model model;
+	model.LoadModel("E:\\C++\\OpenGLtutorial\\cube.obj");
+	renderer.AddModel(std::move(model));
 
 	float angleY = 0;
 
@@ -51,8 +58,7 @@ int main()
 		renderer.ClearScreen();
 
 		/* Render here */
-		renderer.Reload(angleY);
-		renderer.Draw();
+		renderer.Draw(angleY);
 
 		/* Change data here */
 		angleY += 0.0005;

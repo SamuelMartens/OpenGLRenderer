@@ -1,6 +1,8 @@
 #include "model.h"
 #include "Graphic.h"
+#include "ext_glm.h"
 
+#define TINYOBJLOADER_IMPLEMENTATION
 #include "tiny_obj_loader\tiny_obj_loader.h"
 #include "gl_core_4_3.h"
 
@@ -8,6 +10,7 @@
 #include <string>
 #include <cassert>
 #include <cmath>
+#include <iostream>
 
 namespace
 {
@@ -36,6 +39,9 @@ namespace
 	}
 }
 
+Model::Model() :transformMat(ext_glm::IdentityMat())
+{};
+
 int Model::LoadModel(const char* filename)
 {
 	std::string err;
@@ -43,9 +49,13 @@ int Model::LoadModel(const char* filename)
 	std::vector<tinyobj::shape_t> shapes;
 
 	if (!tinyobj::LoadObj(shapes, materials, err, filename))
+	{
+		std::cout << err.c_str();
 		return 1;
+	} 
 
 	ConvertToModelFormat(*this, std::move(shapes));
+	return 0;
 }
 
 void Model::ClearData(bool freeMemory) noexcept
@@ -64,7 +74,7 @@ void Model::ClearData(bool freeMemory) noexcept
 	}
 }
 
-int Model::LoadGlData()
+void Model::LoadGlData()
 {
 	/* Work with vertex buffer array */
 	glGenBuffers(1, &verticesBuffer);
@@ -74,6 +84,10 @@ int Model::LoadGlData()
 	glGenBuffers(1, &normalsBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, normalsBuffer);
 	glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(float), normals.data(), GL_STATIC_DRAW);
+
+	glGenBuffers(1, &indicesBuffer);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indicesBuffer);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
 
 	/* Work with vertex buffer array */
 	glGenVertexArrays(1, &vertexArrayBuffer);
@@ -88,11 +102,14 @@ int Model::LoadGlData()
 	glBindBuffer(GL_ARRAY_BUFFER, normalsBuffer);
 	glVertexAttribPointer(static_cast<GLint>(Graphic::VertexAtrib::Normals), 3, GL_FLOAT, GL_FALSE, 0, NULL);
 
-	//glBindVertexArray(vertexArrayBuffer);
 }
 
 void Model::Draw() const
 {
 	assert(std::fmod(indices.size(), 3) == 0);
-	glDrawArrays(GL_TRIANGLES, 0, indices.size()/3);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indicesBuffer);
+	glBindVertexArray(vertexArrayBuffer);
+
+	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, nullptr);
 }

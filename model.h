@@ -8,8 +8,12 @@
 class Model
 {
 public:
+	Model();
+	~Model() = default;
+	Model(const Model& m) = default;
+
 	int LoadModel(const char* filename);
-	int LoadGlData();
+	void LoadGlData();
 	void ClearData(bool freeMemory=false) noexcept;
 	void Draw() const;
 	
@@ -17,7 +21,7 @@ public:
 	std::vector<float> vertices;
 	std::vector<float> normals;
 	std::vector<float> textures;
-	std::vector<size_t> indices;
+	std::vector<unsigned int> indices;
 
 	/* Matrix */
 	GLint transMatLoc;
@@ -27,4 +31,5 @@ public:
 	GLuint vertexArrayBuffer;
 	GLuint verticesBuffer;
 	GLuint normalsBuffer;
+	GLuint indicesBuffer;
 };

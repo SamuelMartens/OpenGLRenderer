@@ -1,9 +1,12 @@
 #pragma once
 
-
 #include <vector>
+
 #include "gl_core_4_3.h"
 #include "glm\mat4x4.hpp"
+#include "glm\vec4.hpp"
+
+#include "model.h"
 
 namespace Graphic 
 {
@@ -23,17 +26,27 @@ namespace Graphic
 		int Init();
 		int InitShaders();
 		int InitUniforms();
-		void Draw() const;
-		void Reload(float angle);
+
+		void Draw(float angle);
+		void Reload(float angle); // Do nothing
 		void ClearScreen() const;
+
 		void SetTransMatrix(glm::mat4 &transMat);
+		void SetLightPostion(float x, float y, float z);
+
+		void AddModel(const Model&& m);
 
 	private:
+		std::vector<Model> models;
+		glm::vec4 lightPosition;
 
+		/* Buffers */
 		GLuint shaderProgram;
 		GLuint vertShader;
 		GLuint fragShader;
 
+		/* Uniforms */ 
 		GLint transMatLoc;
+		GLint lightPosLoc;
 	};
 }

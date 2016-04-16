@@ -5,7 +5,7 @@
 
 #include <cmath>
 
-glm::mat4 ext_glm::rotateZ(float angle)
+glm::mat4 ext_glm::rotateY(float angle)
 {
 	float rotateMatrix[16] =
 	{
@@ -69,3 +69,15 @@ glm::mat4 ext_glm::scale(float n)
 	return glm::make_mat4(scaleMatrix);
 }
 
+glm::mat4 ext_glm::IdentityMat() noexcept
+{
+	float identityMatrix[16] =
+	{
+		1,  0,  0,  0,
+		0,  1,  0,  0,
+		0,  0,  1,  0,
+		0,  0,  0,  1
+	};
+
+	return glm::make_mat4(identityMatrix);
+}

@@ -1,6 +1,7 @@
 #include "Graphic.h"
 #include "shaders.h"
 #include "ext_glm.h"
+#include "model.h"
 
 #include "gl_core_4_3.h"
 #include "glm/glm.hpp"
@@ -119,7 +120,8 @@ Graphic::Renderer::Renderer() :
 	vertShader(0),
 	fragShader(0),
 	shaderProgram(0),
-	transMatLoc(-1)
+	transMatLoc(-1),
+	lightPosition(0, 0, 0, 1)
 {};
 
 Graphic::Renderer::~Renderer()
@@ -140,7 +142,7 @@ int Graphic::Renderer::InitShaders()
 		return 1;
 	}
 
-	const GLchar* vertSourceArray[] = { Shaders::vertextShader };
+	const GLchar* vertSourceArray[] = { Shaders::diffuseLightVS };
 	glShaderSource(vertShader, 1, vertSourceArray, NULL);
 
 	glCompileShader(vertShader);
@@ -167,7 +169,7 @@ int Graphic::Renderer::InitShaders()
 	}
 
 	fragShader = glCreateShader(GL_FRAGMENT_SHADER);
-	const GLchar* fragSourceArray[] = { Shaders::fragmentShader };
+	const GLchar* fragSourceArray[] = { Shaders::diffuseLightFS };
 	glShaderSource(fragShader, 1, fragSourceArray, NULL);
 
 	if (0 == fragShader)
@@ -247,27 +249,38 @@ int Graphic::Renderer::Init()
 	if (InitUniforms() !=0)
 		std::cout << "Failed to load uniforms \n";
 
+	SetLightPostion(0.95, 0.95, -1);
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 
 	return 0;
 }
 
-void Graphic::Renderer::Draw() const
+void Graphic::Renderer::Draw(float angle)
 {
-	
+	glm::mat4 trMat = ext_glm::rotateX(0.5) * ext_glm::rotateY(angle) * ext_glm::scale(0.5);
+
+
+	for (auto& model: models)
+	{
+		model.Draw();
+		model.transformMat = trMat;
+		SetTransMatrix(model.transformMat);
+	}
 }
 
 
 void Graphic::Renderer::Reload(float angle)
 {
-	SetTransMatrix(ext_glm::scale(0.3) * ext_glm::rotateZ(angle) * ext_glm::rotateX(0.2)*ext_glm::move(-0.5));
+
 }
 
 int Graphic::Renderer::InitUniforms()
 {
 	transMatLoc = glGetUniformLocation(shaderProgram, "trans");
-	if (-1 == transMatLoc)
+	lightPosLoc = glGetUniformLocation(shaderProgram, "lightPosition");
+
+	if (-1 == transMatLoc || -1 == lightPosLoc)
 		return -1;
 
 	return 0;
@@ -282,4 +295,16 @@ void Graphic::Renderer::ClearScreen() const
 {
 	glClearColor(0, 0, 0, 1);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
+void Graphic::Renderer::AddModel(const Model&& m)
+{
+	models.push_back(m);
+	models.back().LoadGlData();
+}
+
+void Graphic::Renderer::SetLightPostion(float x, float y, float z)
+{
+	lightPosition = glm::vec4(x, y, z, 1);
+	glUniform4fv(lightPosLoc, 1, &lightPosition[0]);
 }
