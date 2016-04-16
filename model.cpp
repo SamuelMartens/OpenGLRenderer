@@ -4,6 +4,7 @@
 
 #define TINYOBJLOADER_IMPLEMENTATION
 #include "tiny_obj_loader\tiny_obj_loader.h"
+#include "glm/mat4x4.hpp"
 #include "gl_core_4_3.h"
 
 #include <vector>
@@ -39,7 +40,11 @@ namespace
 	}
 }
 
-Model::Model() :transformMat(ext_glm::IdentityMat())
+Model::Model() :
+transformMat(ext_glm::IdentityMat()),
+position(0, 0, 0, 1),
+slopeAngle(0),
+scale(1)
 {};
 
 int Model::LoadModel(const char* filename)
@@ -55,6 +60,8 @@ int Model::LoadModel(const char* filename)
 	} 
 
 	ConvertToModelFormat(*this, std::move(shapes));
+	SetBoundingBox();
+	ScaleToBoundingBox();
 	return 0;
 }
 
@@ -112,4 +119,48 @@ void Model::Draw() const
 	glBindVertexArray(vertexArrayBuffer);
 
 	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, nullptr);
+}
+
+glm::mat4 Model::CalculateTransformMat()
+{
+	glm::mat4 rotateMat = ext_glm::rotateX(slopeAngle.x) * ext_glm::rotateY(slopeAngle.y);
+	transformMat = ext_glm::move(position.x, position.y, position.z) * rotateMat * ext_glm::scale(scale);
+
+	return transformMat;
+}
+
+void Model::SetBoundingBox()
+{
+	boundingBox[0] = glm::vec4(vertices[indices.front()], vertices[indices.front()+1], vertices[indices.front()+2], 1);
+	boundingBox[1] = glm::vec4(vertices[indices.front()], vertices[indices.front() + 1], vertices[indices.front() + 2], 1);
+
+	for (size_t i = 1; i < indices.size(); ++i)
+	{
+		if (vertices[i] < boundingBox[0].x)
+			boundingBox[0].x = vertices[i];
+		if (vertices[i+1] < boundingBox[0].y)
+			boundingBox[0].y = vertices[i+1];
+		if (vertices[i+2] < boundingBox[0].z)
+			boundingBox[0].z = vertices[i+2];
+
+		if (vertices[i] > boundingBox[1].x)
+			boundingBox[1].x = vertices[i];
+		if (vertices[i + 1] > boundingBox[1].y)
+			boundingBox[1].y = vertices[i + 1];
+		if (vertices[i + 2] > boundingBox[1].z)
+			boundingBox[1].z = vertices[i + 2];
+	}
+}
+
+void Model::ScaleToBoundingBox()
+{
+	float diffX = std::fabs(boundingBox[0].x - boundingBox[1].x);
+	float diffY = std::fabs(boundingBox[0].y - boundingBox[1].y);
+	float diffZ = std::fabs(boundingBox[0].z - boundingBox[1].z);
+
+	if (diffX > 2 || diffY > 2 || diffZ > 2)
+	{
+		float max = std::max({ diffX, diffY, diffZ });
+		scale = 2 / max;
+	}
 }
