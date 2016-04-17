@@ -142,7 +142,7 @@ int Graphic::Renderer::InitShaders()
 		return 1;
 	}
 
-	const GLchar* vertSourceArray[] = { Shaders::diffuseLightVS };
+	const GLchar* vertSourceArray[] = { Shaders::phongLightVS };
 	glShaderSource(vertShader, 1, vertSourceArray, NULL);
 
 	glCompileShader(vertShader);
@@ -169,7 +169,7 @@ int Graphic::Renderer::InitShaders()
 	}
 
 	fragShader = glCreateShader(GL_FRAGMENT_SHADER);
-	const GLchar* fragSourceArray[] = { Shaders::diffuseLightFS };
+	const GLchar* fragSourceArray[] = { Shaders::phongLightFS };
 	glShaderSource(fragShader, 1, fragSourceArray, NULL);
 
 	if (0 == fragShader)
