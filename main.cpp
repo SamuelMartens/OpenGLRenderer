@@ -45,7 +45,7 @@ int main()
 
 	/* Add models */
 	Model model;
-	model.LoadModel("E:\\C++\\OpenGLtutorial\\cube.obj");
+	model.LoadModel("E:\\C++\\OpenGLtutorial\\Stormtrooper.obj");
 	renderer.AddModel(std::move(model));
 
 	float angleY = 0;

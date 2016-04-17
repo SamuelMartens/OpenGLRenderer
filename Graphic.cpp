@@ -260,13 +260,13 @@ int Graphic::Renderer::Init()
 
 void Graphic::Renderer::Draw(float angle)
 {
-	glm::mat4 trMat = ext_glm::rotateX(-0.5) * ext_glm::rotateY(angle) * ext_glm::scale(0.5);
 
 
 	for (auto& model: models)
 	{
 		model.Draw();
-		model.transformMat = trMat;
+		model.slopeAngle.y = angle;
+		model.CalculateTransformMat();
 		SetTransMatrix(model.transformMat);
 	}
 }

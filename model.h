@@ -20,6 +20,7 @@ public:
 	void ClearData(bool freeMemory=false) noexcept;
 	void Draw() const;
 	glm::mat4 CalculateTransformMat();
+	void MoveToCenter();
 	
 	/* Data */
 	std::vector<float> vertices;
@@ -31,7 +32,7 @@ public:
 	std::array<glm::vec4, 2> boundingBox;
 	glm::vec4 position;
 	glm::vec3 slopeAngle;
-	unsigned int scale;
+	float scale;
 
 	/* Matrix */
 	GLint transMatLoc;

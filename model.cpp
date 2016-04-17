@@ -62,6 +62,9 @@ int Model::LoadModel(const char* filename)
 	ConvertToModelFormat(*this, std::move(shapes));
 	SetBoundingBox();
 	ScaleToBoundingBox();
+	CalculateTransformMat();
+	MoveToCenter();
+	CalculateTransformMat();
 	return 0;
 }
 
@@ -126,6 +129,8 @@ glm::mat4 Model::CalculateTransformMat()
 	glm::mat4 rotateMat = ext_glm::rotateX(slopeAngle.x) * ext_glm::rotateY(slopeAngle.y);
 	transformMat = ext_glm::move(position.x, position.y, position.z) * rotateMat * ext_glm::scale(scale);
 
+	boundingBox[0] = transformMat * boundingBox[0];
+	boundingBox[1] = transformMat * boundingBox[1];
 	return transformMat;
 }
 
@@ -134,22 +139,46 @@ void Model::SetBoundingBox()
 	boundingBox[0] = glm::vec4(vertices[indices.front()], vertices[indices.front()+1], vertices[indices.front()+2], 1);
 	boundingBox[1] = glm::vec4(vertices[indices.front()], vertices[indices.front() + 1], vertices[indices.front() + 2], 1);
 
-	for (size_t i = 1; i < indices.size(); ++i)
-	{
-		if (vertices[i] < boundingBox[0].x)
-			boundingBox[0].x = vertices[i];
-		if (vertices[i+1] < boundingBox[0].y)
-			boundingBox[0].y = vertices[i+1];
-		if (vertices[i+2] < boundingBox[0].z)
-			boundingBox[0].z = vertices[i+2];
+	// DEBUG
+	float cur1 = 0;
+	float cur2 = 0;
+	float k = 0;
+	float k1 = 0;
+	float k2 = 0;
+	// END
 
-		if (vertices[i] > boundingBox[1].x)
-			boundingBox[1].x = vertices[i];
-		if (vertices[i + 1] > boundingBox[1].y)
-			boundingBox[1].y = vertices[i + 1];
-		if (vertices[i + 2] > boundingBox[1].z)
-			boundingBox[1].z = vertices[i + 2];
+	for (size_t i = 0; i < indices.size(); ++i)
+	{
+		int curInd = 3*indices[i];
+		if (vertices[curInd] < boundingBox[0].x)
+		{
+			boundingBox[0].x = vertices[curInd];
+			k = curInd;
+			
+		}
+		if (vertices[curInd + 1] < boundingBox[0].y)
+		{
+			boundingBox[0].y = vertices[curInd + 1];
+			cur1 = curInd;
+			k1 = curInd + 1;
+		}
+		if (vertices[curInd + 2] < boundingBox[0].z)
+		{
+			boundingBox[0].z = vertices[curInd + 2];
+			k2 = curInd + 2;
+			cur2 = curInd;
+		}
+
+		if (vertices[curInd] > boundingBox[1].x)
+			boundingBox[1].x = vertices[curInd];
+		if (vertices[curInd + 1] > boundingBox[1].y)
+			boundingBox[1].y = vertices[curInd + 1];
+		if (vertices[curInd + 2] > boundingBox[1].z)
+			boundingBox[1].z = vertices[curInd + 2];
 	}
+
+	// DEBUG
+	k++;
 }
 
 void Model::ScaleToBoundingBox()
@@ -163,4 +192,13 @@ void Model::ScaleToBoundingBox()
 		float max = std::max({ diffX, diffY, diffZ });
 		scale = 2 / max;
 	}
+}
+
+void Model::MoveToCenter()
+{
+	float centerX = -1*(boundingBox[1].x + boundingBox[0].x)/2;
+	float centerY =  -1*(boundingBox[1].y + boundingBox[0].y)/2;
+	float centerZ = -1*(boundingBox[1].z + boundingBox[0].z)/2;
+
+	position = glm::vec4(centerX, centerY, centerZ, 1);
 }
