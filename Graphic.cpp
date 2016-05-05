@@ -2,6 +2,7 @@
 #include "shaders.h"
 #include "ext_glm.h"
 #include "model.h"
+#include "Settings.h"
 
 #include "gl_core_4_3.h"
 #include "glm/glm.hpp"
@@ -9,6 +10,9 @@
 
 #include <vector>
 #include <iostream>
+#include <string>
+#include <cassert>
+#include <memory>
 
 void Graphic::InitFigure(std::vector<float>& vertices, std::vector<float>& colors)
 {
@@ -116,12 +120,12 @@ void Graphic::InitFigure(std::vector<float>& vertices, std::vector<float>& color
 	
 }
 
-Graphic::Renderer::Renderer() :
+Graphic::Renderer::Renderer(Settings& set) :
 	vertShader(0),
 	fragShader(0),
 	shaderProgram(0),
 	transMatLoc(-1),
-	lightPosition(0, 0, 0, 1)
+	settings(set)
 {};
 
 Graphic::Renderer::~Renderer()
@@ -141,8 +145,32 @@ int Graphic::Renderer::InitShaders()
 		std::cout << "Failed to load shaders. \n";
 		return 1;
 	}
+	
+	std::string vertSource;
+	std::string fragSource;
 
-	const GLchar* vertSourceArray[] = { Shaders::phongLightVS };
+	/*  Choosing of shader */
+	switch (settings.shading)
+	{
+	case (Settings::ShadingType::Flat):
+		vertSource = Shaders::flatLightVS;
+		fragSource = Shaders::flatLightFS;
+		break;
+	case (Settings::ShadingType::Guro) :
+		vertSource = Shaders::guroLightVS;
+		fragSource = Shaders::guroLightFS;
+		break;
+	case (Settings::ShadingType::Phong) :
+		vertSource = Shaders::phongLightVS;
+		fragSource = Shaders::phongLightFS;
+		break;
+	default:
+		break;
+	}
+
+	const GLchar* vertSourceArray[] = { static_cast<const GLchar*> (vertSource.c_str()) };
+	const GLchar* fragSourceArray[] = { static_cast<const GLchar*> (fragSource.c_str())};
+
 	glShaderSource(vertShader, 1, vertSourceArray, NULL);
 
 	glCompileShader(vertShader);
@@ -169,7 +197,6 @@ int Graphic::Renderer::InitShaders()
 	}
 
 	fragShader = glCreateShader(GL_FRAGMENT_SHADER);
-	const GLchar* fragSourceArray[] = { Shaders::phongLightFS };
 	glShaderSource(fragShader, 1, fragSourceArray, NULL);
 
 	if (0 == fragShader)
@@ -249,9 +276,6 @@ int Graphic::Renderer::Init()
 	if (InitUniforms() !=0)
 		std::cout << "Failed to load uniforms \n";
 
-	/* Ligth source position */
-	SetLightPostion(0.0, 0.7, -1);
-
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 
@@ -264,6 +288,7 @@ void Graphic::Renderer::Draw(float angle)
 
 	for (auto& model: models)
 	{
+		model.LoadModelUniforms(shaderProgram);
 		model.Draw();
 		model.slopeAngle.y = angle;
 		model.CalculateTransformMat();
@@ -280,9 +305,8 @@ void Graphic::Renderer::Reload(float angle)
 int Graphic::Renderer::InitUniforms()
 {
 	transMatLoc = glGetUniformLocation(shaderProgram, "trans");
-	lightPosLoc = glGetUniformLocation(shaderProgram, "lightPosition");
 
-	if (-1 == transMatLoc || -1 == lightPosLoc)
+	if (-1 == transMatLoc)
 		return -1;
 
 	return 0;
@@ -305,8 +329,36 @@ void Graphic::Renderer::AddModel(const Model&& m)
 	models.back().LoadGlData();
 }
 
-void Graphic::Renderer::SetLightPostion(float x, float y, float z)
+void Graphic::Renderer::AddModel(const Model& m)
 {
-	lightPosition = glm::vec4(x, y, z, 1);
-	glUniform4fv(lightPosLoc, 1, &lightPosition[0]);
+	models.push_back(m);
+	models.back().LoadGlData();
+}
+
+void Graphic::Renderer::AddLight(const Light&& l) 
+{
+	lights.push_back(l);
+	AddModel(lights.back().GetModel());
+}
+
+void Graphic::Renderer::AddLight(const Light& l)
+{
+	lights.push_back(l);
+	AddModel(lights.back().GetModel());
+}
+
+void Graphic::Renderer::AddLight(std::unique_ptr<Light> l)
+{
+	lights.push_back(*l);
+	AddModel(lights.back().GetModel());
+}
+
+void Graphic::Renderer::LoadLightDataToOpenGL() const
+{
+	assert(lights.size() < settings.GetMaxLightNumber());
+	for (unsigned i = 0; i < lights.size(); ++i)
+		lights[i].PassToShaderProgram(shaderProgram, i);
+
+	GLuint lightNumberLoc = glGetUniformLocation(shaderProgram, "lightSourcesNumber");
+	glUniform1i(lightNumberLoc, lights.size());
 }

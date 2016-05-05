@@ -44,7 +44,10 @@ Model::Model() :
 transformMat(ext_glm::IdentityMat()),
 position(0, 0, 0, 1),
 slopeAngle(0),
-scale(1)
+scale(1),
+Ks(1),
+Ka(1),
+Kd(1)
 {};
 
 int Model::LoadModel(const char* filename)
@@ -201,4 +204,15 @@ void Model::MoveToCenter()
 	float centerZ = -1*(boundingBox[1].z + boundingBox[0].z)/2;
 
 	position = glm::vec4(centerX, centerY, centerZ, 1);
+}
+
+void Model::LoadModelUniforms(GLuint shaderProgram)
+{
+	GLuint KdLoc = glGetUniformLocation(shaderProgram, "Kd");
+	GLuint KsLoc = glGetUniformLocation(shaderProgram, "Ks");
+	GLuint KaLoc = glGetUniformLocation(shaderProgram, "Ka");
+
+	glUniform3fv(KdLoc, 1, &Kd[0]);
+	glUniform3fv(KsLoc, 1, &Ks[0]);
+	glUniform3fv(KaLoc, 1, &Ka[0]);
 }

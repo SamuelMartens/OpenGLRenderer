@@ -17,6 +17,7 @@ public:
 
 	int LoadModel(const char* filename);
 	void LoadGlData();
+	void LoadModelUniforms(GLuint shaderProgram);
 	void ClearData(bool freeMemory=false) noexcept;
 	void Draw() const;
 	glm::mat4 CalculateTransformMat();
@@ -33,6 +34,11 @@ public:
 	glm::vec4 position;
 	glm::vec3 slopeAngle;
 	float scale;
+
+	/* Materials data */
+	glm::vec3 Kd;
+	glm::vec3 Ks;
+	glm::vec3 Ka;
 
 	/* Matrix */
 	GLint transMatLoc;

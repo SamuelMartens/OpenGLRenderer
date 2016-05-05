@@ -1,10 +1,12 @@
 #include "InitProgram.h"
 #include "Graphic.h"
 #include "model.h"
+#include "Settings.h"
 
 #include <GLFW/glfw3.h>
 #include <vector>
 #include <iostream>
+#include <memory>
 
 
 int main()
@@ -17,11 +19,7 @@ int main()
 
 	/* Create a windowed mode window and its OpenGL context   */
 
-	// Enable debug
-	//glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
-	//glEnable(GL_DEBUG_OUTPUT);
-
-	window = glfwCreateWindow(600, 600, "Hello world", nullptr, nullptr);
+	window = glfwCreateWindow(600, 600, "Renderer", nullptr, nullptr);
 	if (!window)
 	{
 		glfwTerminate();
@@ -34,18 +32,29 @@ int main()
 
 	InitProgram::SetDebugCallback();
 
-	/* Create renderer */
-	Graphic::Renderer renderer;
+	/* Set settings */
+	Settings settings;
+
+	/* Create and init renderer */
+	Graphic::Renderer renderer(settings);
 	
 	if (0 != renderer.Init())
-	{
 		std::cout << "Failed to init renderer";
-		return 1;
-	};
+
+	Light l;
+	l.SetPosition(glm::vec4(0.7, 0.2, 0.2, 1));
+	l.type = Light::LighType::PointLight;
+	
+	renderer.AddLight(l);
+	renderer.LoadLightDataToOpenGL();
 
 	/* Add models */
 	Model model;
-	model.LoadModel("E:\\C++\\OpenGLtutorial\\Stormtrooper.obj");
+	//model.LoadModel("E:\\C++\\OpenGLtutorial\\Stormtrooper.obj");
+	// DEBUG
+	model.LoadModel("E:\\C++\\OpenGLtutorial\\resources\\sphere.obj");
+	model.scale = 0.25;
+	// END
 	renderer.AddModel(std::move(model));
 
 	float angleY = 0;
