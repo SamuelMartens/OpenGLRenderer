@@ -46,12 +46,16 @@ int main()
 	model.LoadModel("E:\\C++\\OpenGLtutorial\\Stormtrooper.obj");
 	renderer.AddModel(model);
 
+	/* Add light */
 	Light l1, l2;
-	l1.SetPosition(glm::vec4(0.7, 0.2, 0.2, 1));
-	l1.type = Light::LighType::PointLight;
+	l1.direction = glm::vec3(0, -0.25, 1);
+	l1.SetPosition(glm::vec4(0, 0.5, -1, 1));
+	l1.coneAngle = 15;
+	l1.coneShiness = 150;
+	l1.type = Light::LighType::ConeLigh;
 	l2.SetPosition(glm::vec4(-0.7, -0.2, 0.2, 1));
-	l1.type = Light::LighType::PointLight;
-	renderer.AddLight(l2);
+	l2.type = Light::LighType::PointLight;
+	//renderer.AddLight(l2);
 	renderer.AddLight(l1);
 
 	
