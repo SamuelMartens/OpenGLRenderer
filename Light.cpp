@@ -2,6 +2,7 @@
 
 #include <string>
 #include <cstring>
+#include <iostream>
 
 #include "model.h"
 #include "Light.h"
@@ -16,6 +17,7 @@ intensityDiffuse(0.5),
 intensitySpecular(0.75)
 {
 	model.LoadModel("E:\\C++\\OpenGLtutorial\\resources\\sphere.obj");
+	model.type = Model::Type::lightModel;
 	NormalizeLightModel();
 };
 
@@ -29,17 +31,18 @@ Light::Light(glm::vec4& pos, glm::vec3& dir, LighType t) :
 	intensitySpecular(0.75)
 {
 	model.LoadModel("E:\\C++\\OpenGLtutorial\\resources\\sphere.obj");
+	model.type = Model::Type::lightModel;
 	model.position = pos;
 	NormalizeLightModel();
 };
 
 void Light::NormalizeLightModel()
 {
-	model.scale = 0.125;
-	model.Ka = glm::vec3(1);
+	model.scale = 0.02;
+	model.Ka = glm::vec3(50);
 }
 
-void Light::PassToShaderProgram(GLuint progrmaId, int lightInd) const 
+void Light::PassToShaderProgram(GLuint progrmaId, int lightInd) const
 {
 	char lightArrayIndexInStr[100];
 
@@ -70,8 +73,12 @@ void Light::PassToShaderProgram(GLuint progrmaId, int lightInd) const
 	sprintf_s(lightArrayIndexInStr, "lightSources[%d].coneShiness", lightInd);
 	GLint coneShinessLoc = glGetUniformLocation(progrmaId, lightArrayIndexInStr);
 
+	if (-1 == typeLoc || -1 == positionLoc || -1 == directionLoc || -1 == intensityAmbientLoc
+		|| -1 == intensitySpecularLoc || -1 == intensityDiffuseLoc || -1 == shinessLoc || -1 == coneAngleLoc || -1 == coneShinessLoc)
+		std::cout << "Failed to get uniform location \n";
 
-	glUniform1i(typeLoc, static_cast<int>(type));
+
+	glUniform1i(typeLoc, static_cast<GLint>(type));
 	glUniform4fv(positionLoc, 1, &GetPosition()[0]);
 	glUniform3fv(directionLoc, 1, &direction[0]);
 	glUniform3fv(intensityAmbientLoc, 1, &intensityAmbient[0]);

@@ -47,7 +47,8 @@ slopeAngle(0),
 scale(1),
 Ks(1),
 Ka(1),
-Kd(1)
+Kd(1),
+type(Model::Type::commonModel)
 {};
 
 int Model::LoadModel(const char* filename)
@@ -89,6 +90,14 @@ void Model::ClearData(bool freeMemory) noexcept
 
 void Model::LoadGlData()
 {
+
+	/* Work with vertex buffer array */
+	glGenVertexArrays(1, &vertexArrayBuffer);
+	glBindVertexArray(vertexArrayBuffer);
+
+	glEnableVertexAttribArray(static_cast<GLint>(Graphic::VertexAtrib::VertexCoors));
+	glEnableVertexAttribArray(static_cast<GLint>(Graphic::VertexAtrib::Normals));
+
 	/* Work with vertex buffer array */
 	glGenBuffers(1, &verticesBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, verticesBuffer);
@@ -102,12 +111,7 @@ void Model::LoadGlData()
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indicesBuffer);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
 
-	/* Work with vertex buffer array */
-	glGenVertexArrays(1, &vertexArrayBuffer);
-	glBindVertexArray(vertexArrayBuffer);
-
-	glEnableVertexAttribArray(static_cast<GLint>(Graphic::VertexAtrib::VertexCoors));
-	glEnableVertexAttribArray(static_cast<GLint>(Graphic::VertexAtrib::Normals));
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indicesBuffer);
 
 	glBindBuffer(GL_ARRAY_BUFFER, verticesBuffer);
 	glVertexAttribPointer(static_cast<GLint>(Graphic::VertexAtrib::VertexCoors), 3, GL_FLOAT, GL_FALSE, 0, NULL);
@@ -115,13 +119,14 @@ void Model::LoadGlData()
 	glBindBuffer(GL_ARRAY_BUFFER, normalsBuffer);
 	glVertexAttribPointer(static_cast<GLint>(Graphic::VertexAtrib::Normals), 3, GL_FLOAT, GL_FALSE, 0, NULL);
 
+	glBindVertexArray(0);
+
 }
 
 void Model::Draw() const
 {
 	assert(std::fmod(indices.size(), 3) == 0);
 
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indicesBuffer);
 	glBindVertexArray(vertexArrayBuffer);
 
 	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, nullptr);
@@ -129,7 +134,7 @@ void Model::Draw() const
 
 glm::mat4 Model::CalculateTransformMat()
 {
-	glm::mat4 rotateMat = ext_glm::rotateX(slopeAngle.x) * ext_glm::rotateY(slopeAngle.y);
+	glm::mat4 rotateMat = ext_glm::rotateY(slopeAngle.y) * ext_glm::rotateX(slopeAngle.x);
 	transformMat = ext_glm::move(position.x, position.y, position.z) * rotateMat * ext_glm::scale(scale);
 
 	boundingBox[0] = transformMat * boundingBox[0];
@@ -142,13 +147,6 @@ void Model::SetBoundingBox()
 	boundingBox[0] = glm::vec4(vertices[indices.front()], vertices[indices.front()+1], vertices[indices.front()+2], 1);
 	boundingBox[1] = glm::vec4(vertices[indices.front()], vertices[indices.front() + 1], vertices[indices.front() + 2], 1);
 
-	// DEBUG
-	float cur1 = 0;
-	float cur2 = 0;
-	float k = 0;
-	float k1 = 0;
-	float k2 = 0;
-	// END
 
 	for (size_t i = 0; i < indices.size(); ++i)
 	{
@@ -156,20 +154,14 @@ void Model::SetBoundingBox()
 		if (vertices[curInd] < boundingBox[0].x)
 		{
 			boundingBox[0].x = vertices[curInd];
-			k = curInd;
-			
 		}
 		if (vertices[curInd + 1] < boundingBox[0].y)
 		{
 			boundingBox[0].y = vertices[curInd + 1];
-			cur1 = curInd;
-			k1 = curInd + 1;
 		}
 		if (vertices[curInd + 2] < boundingBox[0].z)
 		{
 			boundingBox[0].z = vertices[curInd + 2];
-			k2 = curInd + 2;
-			cur2 = curInd;
 		}
 
 		if (vertices[curInd] > boundingBox[1].x)
@@ -179,9 +171,6 @@ void Model::SetBoundingBox()
 		if (vertices[curInd + 2] > boundingBox[1].z)
 			boundingBox[1].z = vertices[curInd + 2];
 	}
-
-	// DEBUG
-	k++;
 }
 
 void Model::ScaleToBoundingBox()

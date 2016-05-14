@@ -59,5 +59,7 @@ namespace Graphic
 
 		/* Uniforms */ 
 		GLint transMatLoc;
+		GLuint modelSubroutine;
+		GLuint lightSubroutine;
 	};
 }

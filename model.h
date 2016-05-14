@@ -11,6 +11,13 @@
 class Model
 {
 public:
+
+	enum class Type
+	{
+		commonModel,
+		lightModel
+	};
+
 	Model();
 	~Model() = default;
 	Model(const Model& m) = default;
@@ -24,6 +31,7 @@ public:
 	void MoveToCenter();
 	
 	/* Data */
+	Type type;
 	std::vector<float> vertices;
 	std::vector<float> normals;
 	std::vector<float> textures;
@@ -41,7 +49,6 @@ public:
 	glm::vec3 Ka;
 
 	/* Matrix */
-	GLint transMatLoc;
 	glm::mat4 transformMat;
 
 	/* Buffers */

@@ -41,21 +41,20 @@ int main()
 	if (0 != renderer.Init())
 		std::cout << "Failed to init renderer";
 
-	Light l;
-	l.SetPosition(glm::vec4(0.7, 0.2, 0.2, 1));
-	l.type = Light::LighType::PointLight;
-	
-	renderer.AddLight(l);
-	renderer.LoadLightDataToOpenGL();
-
 	/* Add models */
 	Model model;
-	//model.LoadModel("E:\\C++\\OpenGLtutorial\\Stormtrooper.obj");
-	// DEBUG
-	model.LoadModel("E:\\C++\\OpenGLtutorial\\resources\\sphere.obj");
-	model.scale = 0.25;
-	// END
-	renderer.AddModel(std::move(model));
+	model.LoadModel("E:\\C++\\OpenGLtutorial\\Stormtrooper.obj");
+	renderer.AddModel(model);
+
+	Light l1, l2;
+	l1.SetPosition(glm::vec4(0.7, 0.2, 0.2, 1));
+	l1.type = Light::LighType::PointLight;
+	l2.SetPosition(glm::vec4(-0.7, -0.2, 0.2, 1));
+	l1.type = Light::LighType::PointLight;
+	renderer.AddLight(l2);
+	renderer.AddLight(l1);
+
+	
 
 	float angleY = 0;
 

@@ -61,7 +61,7 @@ constexpr GLchar phongLightFS[] =
 R"(
 	#version 430
 
-				struct LightSource
+		struct LightSource
 	{
 		int type;
 		vec4 position;
@@ -70,9 +70,12 @@ R"(
 		vec3 intensityDiffuse;
 		vec3 intensitySpecular;
 		float shiness;
-		float coneAnlge;
+		float coneAngle;
 		float coneShiness;
 	};
+
+	subroutine vec3 shadeModelType (LightSource lightSource , vec4 position, vec3 normal);
+	subroutine uniform shadeModelType shadeModel;
 	
 	layout (location=0) out vec4 FragColor;
 
@@ -85,7 +88,8 @@ R"(
 	
 	in vec4 position;
     in vec3 normal;
-
+	
+	subroutine ( shadeModelType )
 	vec3 PhongLight(LightSource lightSource, vec4 position, vec3 normal)
 	{
 		vec3 s = normalize(vec3(lightSource.position - position));
@@ -97,14 +101,20 @@ R"(
 		vec3 spec = vec3(0.0);
 		if (sDotN > 0.0)
 			spec = lightSource.intensitySpecular * Ks * pow(max(dot(r,v) ,0.0), lightSource.shiness);
-        return ambient + diffuse + spec;
-	} 
+		return ambient + diffuse + spec;
+	}
+	
+	subroutine (shadeModelType)
+	vec3 LighSourceLight(LightSource lightSource, vec4 position, vec3 normal)
+	{
+		return vec3(0.2, 1.0, 0.2);
+	}
 
 	void main()
 	{
 		vec3 lightIntensity = vec3(0);
 		for (int i=0; i < lightSourcesNumber; ++i)
-			lightIntensity += PhongLight(lightSources[i], position, normal);
+			lightIntensity += shadeModel(lightSources[i], position, normal);
 		FragColor=vec4(lightIntensity , 1.0);
 	}
 		

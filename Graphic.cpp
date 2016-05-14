@@ -284,16 +284,34 @@ int Graphic::Renderer::Init()
 
 void Graphic::Renderer::Draw(float angle)
 {
-
-
-	for (auto& model: models)
+	for (unsigned i = 0; i < models.size(); ++i)
 	{
-		model.LoadModelUniforms(shaderProgram);
-		model.Draw();
-		model.slopeAngle.y = angle;
-		model.CalculateTransformMat();
-		SetTransMatrix(model.transformMat);
+		
+		switch (models[i].type)
+		{
+		case Model::Type::commonModel:
+			glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, 1, &modelSubroutine);
+			break;
+		case Model::Type::lightModel:
+			glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, 1, &lightSubroutine);
+			break;
+		default:
+			break;
+		}
+		
+		models[i].slopeAngle.y = angle;
+		models[i].CalculateTransformMat();
+		SetTransMatrix(models[i].transformMat);
+		models[i].LoadModelUniforms(shaderProgram);
+		models[i].Draw();
+		
 	}
+/*	glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, 1, &lightSubroutine);
+	models[1].slopeAngle.y = angle;
+	models[1].CalculateTransformMat();
+	SetTransMatrix(models[1].transformMat);
+	models[1].Draw();
+	models[1].LoadModelUniforms(shaderProgram);*/
 }
 
 
@@ -305,6 +323,8 @@ void Graphic::Renderer::Reload(float angle)
 int Graphic::Renderer::InitUniforms()
 {
 	transMatLoc = glGetUniformLocation(shaderProgram, "trans");
+	modelSubroutine = glGetSubroutineIndex(shaderProgram, GL_FRAGMENT_SHADER, "PhongLight");
+	lightSubroutine = glGetSubroutineIndex(shaderProgram, GL_FRAGMENT_SHADER, "LighSourceLight");
 
 	if (-1 == transMatLoc)
 		return -1;
@@ -339,23 +359,26 @@ void Graphic::Renderer::AddLight(const Light&& l)
 {
 	lights.push_back(l);
 	AddModel(lights.back().GetModel());
+	LoadLightDataToOpenGL();
 }
 
 void Graphic::Renderer::AddLight(const Light& l)
 {
 	lights.push_back(l);
 	AddModel(lights.back().GetModel());
+	LoadLightDataToOpenGL();
 }
 
 void Graphic::Renderer::AddLight(std::unique_ptr<Light> l)
 {
 	lights.push_back(*l);
 	AddModel(lights.back().GetModel());
+	LoadLightDataToOpenGL();
 }
 
 void Graphic::Renderer::LoadLightDataToOpenGL() const
 {
-	assert(lights.size() < settings.GetMaxLightNumber());
+	assert(lights.size() <= settings.GetMaxLightNumber());
 	for (unsigned i = 0; i < lights.size(); ++i)
 		lights[i].PassToShaderProgram(shaderProgram, i);
 

@@ -24,7 +24,7 @@ public:
 
 	/*  Getters */
 	glm::vec4 GetPosition() const noexcept { return model.position; };
-	Model& GetModel() noexcept { return model; }
+	Model GetModel() noexcept { return model; }
 
 	/* Setters */
 	void SetPosition(glm::vec4& newPos) noexcept {model.position = newPos;};
