@@ -10,6 +10,7 @@
 #include "Light.h"
 #include "model.h"
 #include "Settings.h"
+#include "ShaderProgram.h"
 
 namespace Graphic 
 {
@@ -25,10 +26,8 @@ namespace Graphic
 	{
 	public:
 		Renderer(Settings& set);
-		~Renderer();
 		/* Initializing */
 		int Init();
-		int InitShaders();
 		int InitUniforms();
 
 		/* Drawing */
@@ -48,14 +47,10 @@ namespace Graphic
 		void AddLight(std::unique_ptr<Light> l);
 
 		Settings settings;
+		ShaderProgram shaderProgram;
 	private:
 		std::vector<Model> models;
 		std::vector<Light> lights;
-
-		/* Buffers */
-		GLuint shaderProgram;
-		GLuint vertShader;
-		GLuint fragShader;
 
 		/* Uniforms */ 
 		GLint transMatLoc;

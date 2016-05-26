@@ -2,6 +2,8 @@
 #include "Graphic.h"
 #include "model.h"
 #include "Settings.h"
+#include "ShaderProgram.h"
+#include "Shader.h"
 
 #include <GLFW/glfw3.h>
 #include <vector>
@@ -34,6 +36,11 @@ int main()
 
 	/* Set settings */
 	Settings settings;
+	
+	/* Creating of shaders and shader program */
+	Shader vertexShader(Shader::Vertex, "PATH");
+	Shader fragmentShader(Shader::Fragment, "PATH");
+	ShaderProgram shaderProgram(vertexShader, fragmentShader);
 
 	/* Create and init renderer */
 	Graphic::Renderer renderer(settings);

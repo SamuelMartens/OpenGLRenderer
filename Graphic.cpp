@@ -1,5 +1,4 @@
 #include "Graphic.h"
-#include "shaders.h"
 #include "ext_glm.h"
 #include "model.h"
 #include "Settings.h"
@@ -121,158 +120,18 @@ void Graphic::InitFigure(std::vector<float>& vertices, std::vector<float>& color
 }
 
 Graphic::Renderer::Renderer(Settings& set) :
-	vertShader(0),
-	fragShader(0),
-	shaderProgram(0),
-	transMatLoc(-1),
-	settings(set)
+	  transMatLoc(-1)
+	, settings(set)
 {};
-
-Graphic::Renderer::~Renderer()
-{
-	glDeleteShader(fragShader);
-	glDeleteShader(vertShader);
-	glDeleteProgram(shaderProgram);
-};
-
-int Graphic::Renderer::InitShaders()
-{
-	/* Compile shaders */
-
-	vertShader = glCreateShader(GL_VERTEX_SHADER);
-	if (0 == vertShader)
-	{
-		std::cout << "Failed to load shaders. \n";
-		return 1;
-	}
-	
-	std::string vertSource;
-	std::string fragSource;
-
-	/*  Choosing of shader */
-	switch (settings.shading)
-	{
-	case (Settings::ShadingType::Flat):
-		vertSource = Shaders::flatLightVS;
-		fragSource = Shaders::flatLightFS;
-		break;
-	case (Settings::ShadingType::Guro) :
-		vertSource = Shaders::guroLightVS;
-		fragSource = Shaders::guroLightFS;
-		break;
-	case (Settings::ShadingType::Phong) :
-		vertSource = Shaders::phongLightVS;
-		fragSource = Shaders::phongLightFS;
-		break;
-	default:
-		break;
-	}
-
-	const GLchar* vertSourceArray[] = { static_cast<const GLchar*> (vertSource.c_str()) };
-	const GLchar* fragSourceArray[] = { static_cast<const GLchar*> (fragSource.c_str())};
-
-	glShaderSource(vertShader, 1, vertSourceArray, NULL);
-
-	glCompileShader(vertShader);
-	
-	GLint vertRes;
-	glGetShaderiv(vertShader, GL_COMPILE_STATUS, &vertRes);
-	if (GL_FALSE == vertRes)
-	{
-		std::cout << "Failed to compile vertex shader. \n";
-		
-		GLint loglen;
-		glGetShaderiv(vertShader, GL_INFO_LOG_LENGTH, &loglen);
-
-		if (loglen > 0)
-		{
-			char* log = new char[loglen];
-
-			GLsizei written;
-			glGetShaderInfoLog(vertShader, loglen, &written, log);
-			std::cout << log << " \n";
-			delete [] log;
-		}
-		return 1;
-	}
-
-	fragShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragShader, 1, fragSourceArray, NULL);
-
-	if (0 == fragShader)
-	{
-		std::cout << "Failed to load shaders. \n";
-		return 1;
-	}
-
-	glCompileShader(fragShader);
-
-	GLint fragRes;
-	glGetShaderiv(fragShader, GL_COMPILE_STATUS, &fragRes);
-
-	if (GL_FALSE == fragRes)
-	{
-		std::cout << "Failed to compile frag shader. \n";
-
-		GLint loglen;
-		glGetShaderiv(fragShader, GL_INFO_LOG_LENGTH, &loglen);
-
-		if (loglen > 0)
-		{
-			char* log = new char[loglen];
-
-			GLsizei written;
-			glGetShaderInfoLog(fragShader, loglen, &written, log);
-			std::cout << log << " \n";
-			delete[] log;
-		}
-		return 1;
-	}
-
-	/* Create and link shader program */
-	shaderProgram = glCreateProgram();
-	if (0 == shaderProgram) 
-	{
-		std::cout << "Failed to create shader program \n";
-		return 1;
-	}
-
-	glAttachShader(shaderProgram, vertShader);
-	glAttachShader(shaderProgram, fragShader);
-
-	glLinkProgram(shaderProgram);
-
-	GLint status;
-	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &status);
-	if ( GL_FALSE == status)
-	{
-		std::cout << "Failed to link shader progrma. \n";
-
-		GLint loglen;
-		glGetProgramiv(shaderProgram, GL_INFO_LOG_LENGTH, &loglen);
-		if (loglen > 0)
-		{
-			char* log = new char[loglen];
-			GLsizei written;
-			glGetProgramInfoLog(shaderProgram, loglen, &written, log);
-			std::cout << log << ". \n";
-			delete[] log;
-		}
-
-		return 1;
-	}
-
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glUseProgram(shaderProgram);
-
-	return 0;
-}
 
 int Graphic::Renderer::Init() 
 {
-	if (InitShaders() != 0)
+	if (!shaderProgram.isLinked())
+	{
+		std::cout<<"Shader program is not linked. Failed to init renderer \n";
 		return 1;
-
+	}
+	
 	if (InitUniforms() !=0)
 		std::cout << "Failed to load uniforms \n";
 
@@ -306,12 +165,6 @@ void Graphic::Renderer::Draw(float angle)
 		models[i].Draw();
 		
 	}
-/*	glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, 1, &lightSubroutine);
-	models[1].slopeAngle.y = angle;
-	models[1].CalculateTransformMat();
-	SetTransMatrix(models[1].transformMat);
-	models[1].Draw();
-	models[1].LoadModelUniforms(shaderProgram);*/
 }
 
 
@@ -322,9 +175,9 @@ void Graphic::Renderer::Reload(float angle)
 
 int Graphic::Renderer::InitUniforms()
 {
-	transMatLoc = glGetUniformLocation(shaderProgram, "trans");
-	modelSubroutine = glGetSubroutineIndex(shaderProgram, GL_FRAGMENT_SHADER, "PhongLight");
-	lightSubroutine = glGetSubroutineIndex(shaderProgram, GL_FRAGMENT_SHADER, "LighSourceLight");
+	transMatLoc = glGetUniformLocation(shaderProgram.id, "trans");
+	modelSubroutine = glGetSubroutineIndex(shaderProgram.id, GL_FRAGMENT_SHADER, "PhongLight");
+	lightSubroutine = glGetSubroutineIndex(shaderProgram.id, GL_FRAGMENT_SHADER, "LighSourceLight");
 
 	if (-1 == transMatLoc)
 		return -1;
@@ -380,8 +233,8 @@ void Graphic::Renderer::LoadLightDataToOpenGL() const
 {
 	assert(lights.size() <= settings.GetMaxLightNumber());
 	for (unsigned i = 0; i < lights.size(); ++i)
-		lights[i].PassToShaderProgram(shaderProgram, i);
+		lights[i].PassToShaderProgram(shaderProgram.id, i);
 
-	GLuint lightNumberLoc = glGetUniformLocation(shaderProgram, "lightSourcesNumber");
+	GLuint lightNumberLoc = glGetUniformLocation(shaderProgram.id, "lightSourcesNumber");
 	glUniform1i(lightNumberLoc, lights.size());
 }
