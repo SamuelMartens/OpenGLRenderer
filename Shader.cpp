@@ -14,7 +14,7 @@ std::string Shader::ParseSourceFile(const std::string&&  filePath) const
 	{
 		std::string line;
 		while (std::getline(shaderStream, line))
-			shaderCode += "\n" + line;
+			shaderCode += line + '\n';
 		shaderStream.close();
 	}
 	return shaderCode;
@@ -48,19 +48,19 @@ void Shader::Compile(std::string&& shaderSource)
 	
 	GLint result;
 	glGetShaderiv(id, GL_COMPILE_STATUS, &result);
-	if (GL_FALSE == vertRes)
+	if (GL_FALSE == result)
 	{
 		std::cout << "Failed to compile shader result. \n";
 		
 		GLint loglen;
-		glGetShaderiv(vertShader, GL_INFO_LOG_LENGTH, &loglen);
+		glGetShaderiv(id, GL_INFO_LOG_LENGTH, &loglen);
 
 		if (loglen > 0)
 		{
 			char* log = new char[loglen];
 
 			GLsizei written;
-			glGetShaderInfoLog(vertShader, loglen, &written, log);
+			glGetShaderInfoLog(id, loglen, &written, log);
 			std::cout << log << " \n";
 			delete [] log;
 		}

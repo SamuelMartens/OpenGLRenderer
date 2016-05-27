@@ -161,7 +161,7 @@ void Graphic::Renderer::Draw(float angle)
 		models[i].slopeAngle.y = angle;
 		models[i].CalculateTransformMat();
 		SetTransMatrix(models[i].transformMat);
-		models[i].LoadModelUniforms(shaderProgram);
+		models[i].LoadModelUniforms(shaderProgram.id);
 		models[i].Draw();
 		
 	}

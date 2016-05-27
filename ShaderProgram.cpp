@@ -11,8 +11,8 @@ void ShaderProgram::Link()
 	assert(vertexShader.isCompiled() && fragmentShader.isCompiled());
 	assert(Shader::Type::Vertex == vertexShader.type && Shader::Type::Fragment == fragmentShader.type);
 	
-	glAttachShader(id, vertexShader);
-	glAttachShader(id, fragmentShader);
+	glAttachShader(id, vertexShader.id);
+	glAttachShader(id, fragmentShader.id);
 	
 	glLinkProgram(id);
 	
@@ -23,7 +23,7 @@ void ShaderProgram::Link()
 		std::cout << "Failed to link shader progrma. \n";
 
 		GLint loglen;
-		glGetProgramiv(shaderProgram, GL_INFO_LOG_LENGTH, &loglen);
+		glGetProgramiv(id, GL_INFO_LOG_LENGTH, &loglen);
 		if (loglen > 0)
 		{
 			char* log = new char[loglen];
@@ -44,10 +44,30 @@ void ShaderProgram::Link()
 	return;
 }
 
-ShaderProgram::ShaderProgram(Shader& vs, Shader& fs)
+ShaderProgram::ShaderProgram(Shader& vs, Shader& fs):
+	  vertexShader(vs)
+	, fragmentShader(fs)
 {
-	assert(Shader::Type::Vertex == vs.type && Shader::Type::Fragment == fs.type);
-	assert(vs.isCompiled() && fs.isCompiled());
+	assert(Shader::Type::Vertex == vertexShader.type && Shader::Type::Fragment == fragmentShader.type);
+	assert(vertexShader.isCompiled() && fragmentShader.isCompiled());
 	
+	id = glCreateProgram();
+	if (0 == id)
+		std::cout << "Failed to create shader program \n";
+
+	Link();
+}
+
+ShaderProgram::ShaderProgram(Shader&& vs, Shader&& fs) :
+	vertexShader(vs)
+	, fragmentShader(fs)
+{
+	assert(Shader::Type::Vertex == vertexShader.type && Shader::Type::Fragment == fragmentShader.type);
+	assert(vertexShader.isCompiled() && fragmentShader.isCompiled());
+
+	id = glCreateProgram();
+	if (0 == id)
+		std::cout << "Failed to create shader program \n";
+
 	Link();
 }

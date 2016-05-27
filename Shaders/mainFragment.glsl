@@ -13,12 +13,12 @@
 		float coneShiness;
 	};
 
-		subroutine vec3 shadeModelType (LightSource lightSource , vec4 position, vec3 normal);
+	subroutine vec3 shadeModelType (LightSource lightSource , vec4 position, vec3 normal);
 	subroutine uniform shadeModelType shadeModel;
 	
 	layout (location=0) out vec4 FragColor;
 
-		uniform LightSource lightSources[5];
+	uniform LightSource lightSources[5];
 	uniform int lightSourcesNumber;
 
 		uniform vec3 Kd;
@@ -28,7 +28,7 @@
 	in vec4 position;
     in vec3 normal;
 
-		vec3 PointLight (LightSource lightSource, vec4 position, vec3 normal)
+	vec3 PointLight (LightSource lightSource, vec4 position, vec3 normal)
 	{
 		vec3 s = normalize(vec3(lightSource.position - position));
 		vec3 v = normalize(-position.xyz);
@@ -66,14 +66,13 @@
 		return ambient + diffuse + spec;	
 	}
 	
-	
 	vec3 ConeLight(LightSource lightSource, vec4 position, vec3 normal)
 	{
 		vec3 s = normalize(vec3(lightSource.position - position));
 		float angle = acos(dot(-s, lightSource.direction));
 		float cutoff = radians( clamp(lightSource.coneAngle, 0.0, 90.0));
 		vec3 ambient = lightSource.intensityAmbient * Ka;
-		if (angle < cutoff)
+		if (angle <= cutoff)
 		{
 			// Half path vector optimization
 			//vec3 h = normalize(v + s);

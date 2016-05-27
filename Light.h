@@ -24,16 +24,21 @@ public:
 
 	/*  Getters */
 	glm::vec4 GetPosition() const noexcept { return model.position; };
-	Model GetModel() noexcept { return model; }
+	Model GetModel() const noexcept { return model; };
+	glm::vec3 GetDirection() const noexcept { return direction; };
+
 
 	/* Setters */
-	void SetPosition(glm::vec4& newPos) noexcept {model.position = newPos;};
+	void SetPosition(glm::vec4& newPos) noexcept { model.position = newPos; };
+	void SetPosition(glm::vec4&& newPos) noexcept {model.position = newPos;};
+	void SetDirection(glm::vec3& newDir) noexcept { direction = glm::normalize(newDir); };
+	void SetDirection(glm::vec3&& newDir ) noexcept{ direction = glm::normalize(newDir); };
 
 	/* Other functions */
 	void PassToShaderProgram(GLuint programId, int lightInd=0) const;
 
 	/* General data */
-	glm::vec3 direction;
+	
 	LighType type;
 	float shiness;
 	float coneAngle;
@@ -45,5 +50,6 @@ public:
 private:
 	void NormalizeLightModel();
 	Model  model;
+	glm::vec3 direction;
 };
 

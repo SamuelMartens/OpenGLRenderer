@@ -4,6 +4,8 @@
 #include <cstring>
 #include <iostream>
 
+#include "glm/glm.hpp"
+
 #include "model.h"
 #include "Light.h"
 
@@ -22,7 +24,7 @@ intensitySpecular(0.75)
 };
 
 Light::Light(glm::vec4& pos, glm::vec3& dir, LighType t) :
-	direction(dir),
+	direction(glm::normalize(dir)),
 	type(t),
 	shiness(10),
 	coneAngle(90),

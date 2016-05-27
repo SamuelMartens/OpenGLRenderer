@@ -7,12 +7,12 @@
 class Shader
 {
 public:
-	class enum Type
+	enum class Type
 	{
 		None
 		, Vertex
 		, Fragment
-	}
+	};
 	
 	Shader():
 		  id(-1)
@@ -28,7 +28,7 @@ public:
 		  type(t)
 		, compiled(false)
 	{
-		ParseAndCompile(filePath);
+		ParseAndCompile(std::move(filePath));
 	};
 	~Shader()=default;
 	
@@ -37,7 +37,7 @@ public:
 	
 	void ParseAndCompile(const std::string&& filePath)
 	{
-		Compile(ParseSourceFile(filePath));
+		Compile(ParseSourceFile(std::move(filePath)));
 	};
 	bool isCompiled() const noexcept{ return compiled; };
 	
@@ -47,4 +47,4 @@ private:
 
 	bool compiled;
 	
-}
+};

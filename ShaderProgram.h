@@ -34,4 +34,4 @@ public:
 
 private:
 	bool linked;
-}
+};
