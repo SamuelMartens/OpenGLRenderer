@@ -1,6 +1,6 @@
 #version 430
 
-		struct LightSource
+	struct LightSource
 	{
 		int type;
 		vec4 position;
@@ -13,15 +13,28 @@
 		float coneShiness;
 	};
 
+	struct Settings
+	{
+		int cartoonLevelsNumber;
+
+		// CAST TO BOOL
+		int isCartoon;
+		int isFog;
+	};
+
 	subroutine vec3 shadeModelType (LightSource lightSource , vec4 position, vec3 normal);
 	subroutine uniform shadeModelType shadeModel;
+
+	subroutine vec3 applyEffectsType (vec3 initColor);
+	subroutine uniform applyEffectsType applyEffect;
 	
 	layout (location=0) out vec4 FragColor;
 
 	uniform LightSource lightSources[5];
 	uniform int lightSourcesNumber;
+	uniform Settings settings;
 
-		uniform vec3 Kd;
+	uniform vec3 Kd;
 	uniform vec3 Ka;
 	uniform vec3 Ks;
 	
@@ -88,6 +101,30 @@
 		{
 			return ambient;
 		}
+	}
+
+	vec3 CartoonEffect(vec3 initColor )
+	{
+		int oneStep = 1 / settings.cartoonLevelsNumber;
+		initColor = floor( initColor / oneStep);
+		initColor = initColor * oneStep;
+
+		return oneStep;
+	}
+
+	subroutine ( applyEffectsType)
+	vec3 NoEffects(vec3 initColor)
+	{
+		return initColor;
+	}
+
+	subroutine ( applyEffectsType )
+	vec3 UseEffects(vec3 initColor)
+	{
+		if (bool(isCartoon))
+			initColor = CartoonEffect( initColor );
+
+		return initColor;
 	}
 
 	subroutine ( shadeModelType )

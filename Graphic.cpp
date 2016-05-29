@@ -131,6 +131,9 @@ int Graphic::Renderer::Init()
 		std::cout<<"Shader program is not linked. Failed to init renderer \n";
 		return 1;
 	}
+
+	settings.InitSuboroutines(shaderProgram.id);
+	settings.PassToShaderProgram(shaderProgram.id);
 	
 	if (InitUniforms() !=0)
 		std::cout << "Failed to load uniforms \n";

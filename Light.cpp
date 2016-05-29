@@ -44,36 +44,36 @@ void Light::NormalizeLightModel()
 	model.Ka = glm::vec3(50);
 }
 
-void Light::PassToShaderProgram(GLuint progrmaId, int lightInd) const
+void Light::PassToShaderProgram(GLuint programId, int lightInd) const
 {
 	char lightArrayIndexInStr[100];
 
 	sprintf_s(lightArrayIndexInStr, "lightSources[%d].type", lightInd);
-	GLint typeLoc = glGetUniformLocation(progrmaId, lightArrayIndexInStr);
+	GLint typeLoc = glGetUniformLocation(programId, lightArrayIndexInStr);
 
 	sprintf_s(lightArrayIndexInStr, "lightSources[%d].position", lightInd);
-	GLint positionLoc = glGetUniformLocation(progrmaId, lightArrayIndexInStr);
+	GLint positionLoc = glGetUniformLocation(programId, lightArrayIndexInStr);
 
 	sprintf_s(lightArrayIndexInStr, "lightSources[%d].direction", lightInd);
-	GLint directionLoc = glGetUniformLocation(progrmaId, lightArrayIndexInStr);
+	GLint directionLoc = glGetUniformLocation(programId, lightArrayIndexInStr);
 
 	sprintf_s(lightArrayIndexInStr, "lightSources[%d].intensityAmbient", lightInd);
-	GLint intensityAmbientLoc = glGetUniformLocation(progrmaId, lightArrayIndexInStr);
+	GLint intensityAmbientLoc = glGetUniformLocation(programId, lightArrayIndexInStr);
 
 	sprintf_s(lightArrayIndexInStr, "lightSources[%d].intensitySpecular", lightInd);
-	GLint intensitySpecularLoc = glGetUniformLocation(progrmaId, lightArrayIndexInStr);
+	GLint intensitySpecularLoc = glGetUniformLocation(programId, lightArrayIndexInStr);
 
 	sprintf_s(lightArrayIndexInStr, "lightSources[%d].intensityDiffuse", lightInd);
-	GLint intensityDiffuseLoc = glGetUniformLocation(progrmaId, lightArrayIndexInStr);
+	GLint intensityDiffuseLoc = glGetUniformLocation(programId, lightArrayIndexInStr);
 
 	sprintf_s(lightArrayIndexInStr, "lightSources[%d].shiness", lightInd);
-	GLint shinessLoc = glGetUniformLocation(progrmaId, lightArrayIndexInStr);
+	GLint shinessLoc = glGetUniformLocation(programId, lightArrayIndexInStr);
 
 	sprintf_s(lightArrayIndexInStr, "lightSources[%d].coneAngle", lightInd);
-	GLint coneAngleLoc = glGetUniformLocation(progrmaId, lightArrayIndexInStr);
+	GLint coneAngleLoc = glGetUniformLocation(programId, lightArrayIndexInStr);
 
 	sprintf_s(lightArrayIndexInStr, "lightSources[%d].coneShiness", lightInd);
-	GLint coneShinessLoc = glGetUniformLocation(progrmaId, lightArrayIndexInStr);
+	GLint coneShinessLoc = glGetUniformLocation(programId, lightArrayIndexInStr);
 
 	if (-1 == typeLoc || -1 == positionLoc || -1 == directionLoc || -1 == intensityAmbientLoc
 		|| -1 == intensitySpecularLoc || -1 == intensityDiffuseLoc || -1 == shinessLoc || -1 == coneAngleLoc || -1 == coneShinessLoc)
