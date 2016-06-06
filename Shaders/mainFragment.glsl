@@ -1,4 +1,6 @@
 #version 430
+	
+	const int lightMaxNumber = 5;
 
 	struct LightSource
 	{
@@ -22,17 +24,15 @@
 		int isFog;
 	};
 
-	subroutine vec3 shadeModelType (LightSource lightSource , vec4 position, vec3 normal);
+	subroutine vec3 shadeModelType (LightSource lightSources[lightMaxNumber], vec4 position, vec3 normal);
 	subroutine uniform shadeModelType shadeModel;
-
-	subroutine vec3 applyEffectsType (vec3 initColor);
-	subroutine uniform applyEffectsType applyEffect;
 	
 	layout (location=0) out vec4 FragColor;
 
-	uniform LightSource lightSources[5];
+	uniform LightSource lightSources[lightMaxNumber];
 	uniform int lightSourcesNumber;
 	uniform Settings settings;
+	uniform int useEffects;
 
 	uniform vec3 Kd;
 	uniform vec3 Ka;
@@ -108,51 +108,57 @@
 		int oneStep = 1 / settings.cartoonLevelsNumber;
 		initColor = floor( initColor / oneStep);
 		initColor = initColor * oneStep;
+		
+		// DEBUG
+		initColor = vec3(0, 1, 0);
+		// END
 
-		return oneStep;
-	}
-
-	subroutine ( applyEffectsType)
-	vec3 NoEffects(vec3 initColor)
-	{
 		return initColor;
 	}
 
-	subroutine ( applyEffectsType )
 	vec3 UseEffects(vec3 initColor)
 	{
-		if (bool(isCartoon))
+		if (bool(settings.isCartoon))
 			initColor = CartoonEffect( initColor );
-
+		if (bool(settings.isFog))
+			initColor = initColor;
+	
+		// DEBUG
+		initColor = vec3(0.0, 0.0, 1.0);
+		// END
 		return initColor;
 	}
 
 	subroutine ( shadeModelType )
-	vec3 PhongLight(LightSource lightSource, vec4 position, vec3 normal)
+	vec3 PhongLight(LightSource lightSources[lightMaxNumber], vec4 position, vec3 normal)
 	{
-		switch(lightSource.type)
-        {
+		vec3 lightIntensity = vec3(0.0);
+		for (int i=0; i < lightSourcesNumber; ++i)
+		{
+			switch(lightSources[i].type)
+			{
 			case 0:
-               return vec3(0.0, 0.0, 0.0);
+               lightIntensity += vec3(0.0, 0.0, 0.0);
             case 1:
-               return PointLight(lightSource, position, normal);
+               lightIntensity += PointLight(lightSources[i], position, normal);
             case 2:
-			   return DirectionLight(lightSource, position, normal);
+			   lightIntensity += DirectionLight(lightSources[i], position, normal);
 			case 3:
-			   return ConeLight(lightSource, position, normal);
+			   lightIntensity += ConeLight(lightSources[i], position, normal);
+			}
 		}
+
+		return lightIntensity;
 	}
 	
 	subroutine (shadeModelType)
-	vec3 LighSourceLight(LightSource lightSource, vec4 position, vec3 normal)
+	vec3 LighSourceLight(LightSource lightSources[lightMaxNumber], vec4 position, vec3 normal)
 	{
 		return vec3(0.2, 1.0, 0.2);
 	}
 
 	void main()
 	{
-		vec3 lightIntensity = vec3(0);
-		for (int i=0; i < lightSourcesNumber; ++i)
-			lightIntensity += shadeModel(lightSources[i], position, normal);
+		vec3 lightIntensity = shadeModel(lightSources, position, normal);
 		FragColor=vec4(lightIntensity , 1.0);
 	}

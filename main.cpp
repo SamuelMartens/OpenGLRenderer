@@ -33,14 +33,16 @@ int main()
 		return 1;
 
 	InitProgram::SetDebugCallback();
-
-	/* Set settings */
-	Settings settings;
 	
 	/* Creating of shaders and shader program */
 	Shader vertexShader(Shader::Type::Vertex, "E:\\C++\\OpenGLtutorial\\Shaders\\mainVertex.glsl");
 	Shader fragmentShader(Shader::Type::Fragment, "E:\\C++\\OpenGLtutorial\\Shaders\\mainFragment.glsl");
 	ShaderProgram shaderProgram(vertexShader, fragmentShader);
+
+	/* Set settings */
+	Settings settings;
+	settings.cartoonLevels = 4;
+	settings.cartoon = false;
 
 	/* Create and init renderer */
 	Graphic::Renderer renderer(settings);
@@ -58,8 +60,8 @@ int main()
 	Light l1, l2;
 	l1.SetDirection(glm::vec3(0, 0, 5));
 	l1.SetPosition(glm::vec4(0, 0, -1, 1));
-	l1.coneAngle = 30;
-	l1.coneShiness = 80;
+	l1.coneAngle = 50;
+	l1.coneShiness = 50;
 	l1.type = Light::LighType::ConeLigh;
 	renderer.AddLight(l1);
 

@@ -132,10 +132,9 @@ int Graphic::Renderer::Init()
 		return 1;
 	}
 
-	settings.InitSuboroutines(shaderProgram.id);
 	settings.PassToShaderProgram(shaderProgram.id);
 	
-	if (InitUniforms() !=0)
+	if (InitUniforms() != 0)
 		std::cout << "Failed to load uniforms \n";
 
 	glEnable(GL_DEPTH_TEST);
@@ -181,6 +180,9 @@ int Graphic::Renderer::InitUniforms()
 	transMatLoc = glGetUniformLocation(shaderProgram.id, "trans");
 	modelSubroutine = glGetSubroutineIndex(shaderProgram.id, GL_FRAGMENT_SHADER, "PhongLight");
 	lightSubroutine = glGetSubroutineIndex(shaderProgram.id, GL_FRAGMENT_SHADER, "LighSourceLight");
+
+	if (GL_INVALID_INDEX == modelSubroutine || GL_INVALID_INDEX == lightSubroutine)
+		std::cout << "Failed to get graphic subroutine index. \n ";
 
 	if (-1 == transMatLoc)
 		return -1;
