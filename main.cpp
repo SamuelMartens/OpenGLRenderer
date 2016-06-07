@@ -41,8 +41,6 @@ int main()
 
 	/* Set settings */
 	Settings settings;
-	settings.cartoonLevels = 4;
-	settings.cartoon = false;
 
 	/* Create and init renderer */
 	Graphic::Renderer renderer(settings);
@@ -62,7 +60,7 @@ int main()
 	l1.SetPosition(glm::vec4(0, 0, -1, 1));
 	l1.coneAngle = 50;
 	l1.coneShiness = 50;
-	l1.type = Light::LighType::ConeLigh;
+	l1.type = Light::LighType::PointLight;
 	renderer.AddLight(l1);
 
 	float angleY = 0;

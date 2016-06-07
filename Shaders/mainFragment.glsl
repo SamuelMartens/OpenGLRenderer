@@ -18,6 +18,8 @@
 	struct Settings
 	{
 		int cartoonLevelsNumber;
+		float minFogDistance;
+		float maxFogDistance;
 
 		// CAST TO BOOL
 		int isCartoon;
@@ -105,12 +107,12 @@
 
 	vec3 CartoonEffect(vec3 initColor )
 	{
-		int oneStep = 1 / settings.cartoonLevelsNumber;
+		float oneStep = 1.0 / settings.cartoonLevelsNumber;
 		initColor = floor( initColor / oneStep);
 		initColor = initColor * oneStep;
 		
 		// DEBUG
-		initColor = vec3(0, 1, 0);
+		//initColor = vec3(0, 1, 0);
 		// END
 
 		return initColor;
@@ -124,7 +126,7 @@
 			initColor = initColor;
 	
 		// DEBUG
-		initColor = vec3(0.0, 0.0, 1.0);
+		//	initColor = vec3(0.0, 0.0, 1.0);
 		// END
 		return initColor;
 	}
@@ -148,6 +150,7 @@
 			}
 		}
 
+		lightIntensity = UseEffects(lightIntensity);
 		return lightIntensity;
 	}
 	
