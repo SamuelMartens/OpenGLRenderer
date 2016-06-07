@@ -132,7 +132,7 @@ int Graphic::Renderer::Init()
 		return 1;
 	}
 
-	settings.PassToShaderProgram(shaderProgram.id);
+	settings.PassToShaderProgram(shaderProgram);
 	
 	if (InitUniforms() != 0)
 		std::cout << "Failed to load uniforms \n";

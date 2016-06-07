@@ -110,24 +110,30 @@
 		float oneStep = 1.0 / settings.cartoonLevelsNumber;
 		initColor = floor( initColor / oneStep);
 		initColor = initColor * oneStep;
-		
+
+		return initColor;
+	}
+
+	vec3 FogEffect(vec3 initColor, vec4 position)
+	{
+		float dist = abs(position.z);
+		float fogFactor = (settings.maxFogDistance - dist) / (settings.maxFogDistance - settings.minFogDistance);	
+		fogFactor = clamp(fogFactor, 0.0, 1.0);
+		initColor = mix(vec3(0.0, 0.0, 0.0), initColor, fogFactor);
 		// DEBUG
-		//initColor = vec3(0, 1, 0);
+		// initColor = vec3(0, 1, 0);
 		// END
 
 		return initColor;
 	}
 
-	vec3 UseEffects(vec3 initColor)
+	vec3 UseEffects(vec3 initColor, vec4 position)
 	{
 		if (bool(settings.isCartoon))
 			initColor = CartoonEffect( initColor );
 		if (bool(settings.isFog))
-			initColor = initColor;
-	
-		// DEBUG
-		//	initColor = vec3(0.0, 0.0, 1.0);
-		// END
+			initColor = FogEffect(initColor, position);
+
 		return initColor;
 	}
 
@@ -150,7 +156,7 @@
 			}
 		}
 
-		lightIntensity = UseEffects(lightIntensity);
+		lightIntensity = UseEffects(lightIntensity, position);
 		return lightIntensity;
 	}
 	

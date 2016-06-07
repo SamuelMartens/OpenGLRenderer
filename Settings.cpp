@@ -23,5 +23,5 @@ void Settings::PassToShaderProgram(const ShaderProgram& program) const
 	glUniform1i(isFogLoc, static_cast<GLint>(fog));
 	glUniform1i(isCartoonLoc, static_cast<GLint>(cartoon));
 	glUniform1f(minFogDistanceLoc, static_cast<GLfloat>(minFogDistance));
-	glUniform1f(maxFogDistanceLoc, static_cast<GLfloat>(maxFogDistanceLoc));
+	glUniform1f(maxFogDistanceLoc, static_cast<GLfloat>(maxFogDistance));
 }
