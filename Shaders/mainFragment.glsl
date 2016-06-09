@@ -1,5 +1,7 @@
 #version 430
 	
+	layout(early_fragment_tests) in;
+
 	const int lightMaxNumber = 5;
 
 	struct LightSource
@@ -116,13 +118,10 @@
 
 	vec3 FogEffect(vec3 initColor, vec4 position)
 	{
-		float dist = abs(position.z);
+		float dist = position.z;
 		float fogFactor = (settings.maxFogDistance - dist) / (settings.maxFogDistance - settings.minFogDistance);	
-		fogFactor = clamp(fogFactor, 0.0, 1.0);
+		fogFactor = clamp(fogFactor, 0.0, 1.0) ;
 		initColor = mix(vec3(0.0, 0.0, 0.0), initColor, fogFactor);
-		// DEBUG
-		// initColor = vec3(0, 1, 0);
-		// END
 
 		return initColor;
 	}
