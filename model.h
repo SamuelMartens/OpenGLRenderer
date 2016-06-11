@@ -19,8 +19,13 @@ public:
 	};
 
 	Model();
-	~Model() = default;
 	Model(const Model& m) = default;
+	~Model()
+	{
+		GLuint buffers[3] = { verticesBuffer, normalsBuffer, indicesBuffer };
+		glDeleteVertexArrays(1, &vertexArrayBuffer);
+		glDeleteBuffers(3, buffers);
+	};
 
 	int LoadModel(const char* filename);
 	void LoadGlData();

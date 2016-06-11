@@ -118,8 +118,7 @@
 
 	vec3 FogEffect(vec3 initColor, vec4 position)
 	{
-		float dist = position.z;
-		float fogFactor = (settings.maxFogDistance - dist) / (settings.maxFogDistance - settings.minFogDistance);	
+		float fogFactor = (settings.maxFogDistance - position.z) / (settings.maxFogDistance - settings.minFogDistance);	
 		fogFactor = clamp(fogFactor, 0.0, 1.0) ;
 		initColor = mix(vec3(0.0, 0.0, 0.0), initColor, fogFactor);
 

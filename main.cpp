@@ -41,6 +41,9 @@ int main()
 
 	/* Set settings */
 	Settings settings;
+	settings.fog = true;
+	settings.minFogDistance = -1;
+	settings.maxFogDistance = -0.3;
 
 	/* Create and init renderer */
 	Graphic::Renderer renderer(settings);
