@@ -14,7 +14,8 @@ public:
 	{
 		Diffuse = 0,
 		Normal = 1,
-		Transparent = 2
+		Transparent = 2,
+		MixTexture = 3
 	};
 
 	Texture() :
@@ -33,7 +34,7 @@ public:
 		if (GL_INVALID_VALUE == id)
 			std::cout << "Failed to generate texture";
 	};
-	~Texture(){ glDeleteTextures(1, &id); };
+	virtual ~Texture(){ glDeleteTextures(1, &id); };
 
 	/* Getters */
 	GLuint GetId() const noexcept { return id; };
