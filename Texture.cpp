@@ -18,13 +18,21 @@ void Texture::Load(std::string&& filePath)
 
 
 	glBindTexture(GL_TEXTURE_2D, id);
-	if (4 == comp)
+	switch (comp)
 	{
-		glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA, w, h);
+	case 4:
+		glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA8, w, h);
 		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, w, h, GL_RGBA, GL_UNSIGNED_BYTE, image);
+		break;
+	case 3:
+		glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGB8, w, h);
+		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, image);
+		break;
+	default:
+		std::cout << "Undefined texture comp variable \n";
+		break;
 	}
 	
-
 	initialized = true;
 	stbi_image_free(image);
 }
