@@ -1,8 +1,8 @@
 #pragma once 
 
-#include "gl_core_4_3.h"
-
 #include <string>
+
+#include "gl_core_4_3.h"
 
 class Shader
 {
@@ -19,7 +19,7 @@ public:
 		, type(Type::None)
 		, compiled(false)
 		{};
-	Shader(Type t):
+	explicit Shader(Type t):
 		  id(-1)
 		, type(t)
 		, compiled(false)

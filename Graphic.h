@@ -18,14 +18,20 @@ namespace Graphic
 
 	enum class VertexAtrib
 	{
-		VertexCoors,
-		Normals
+		VertexCoors = 0,
+		Normals = 1,
+		TextureCoord = 2
 	};
 
 	class Renderer
 	{
 	public:
-		Renderer(Settings& set);
+		explicit Renderer(Settings& set);
+		~Renderer()
+		{
+			for (auto& model : models)
+				model.ClearGLBuffers();
+		};
 		/* Initializing */
 		int Init();
 		int InitUniforms();

@@ -1,12 +1,14 @@
 #pragma once
 
+#include <array>
+#include <vector>
+
 #include "glm\mat4x4.hpp"
 #include "glm\vec4.hpp"
 #include "glm\vec3.hpp"
 #include "gl_core_4_3.h"
 
-#include <array>
-#include <vector>
+#include "Material.h"
 
 class Model
 {
@@ -20,17 +22,19 @@ public:
 
 	Model();
 	Model(const Model& m) = default;
-	~Model()
-	{
-		GLuint buffers[3] = { verticesBuffer, normalsBuffer, indicesBuffer };
-		glDeleteVertexArrays(1, &vertexArrayBuffer);
-		glDeleteBuffers(3, buffers);
-	};
+	~Model() = default;
 
 	int LoadModel(const char* filename);
 	void LoadGlData();
-	void LoadModelUniforms(GLuint shaderProgram);
+	void LoadModelUniforms(const ShaderProgram& shaderProgram) const;
 	void ClearData(bool freeMemory=false) noexcept;
+	void ClearGLBuffers() noexcept
+	{
+		GLuint buffers[] = { verticesBuffer, normalsBuffer, indicesBuffer, texturecoordsBuffer };
+		glDeleteVertexArrays(1, &vertexArrayBuffer);
+		glDeleteBuffers(4, buffers);
+		verticesBuffer = normalsBuffer = indicesBuffer = texturecoordsBuffer = -1;
+	};
 	void Draw() const;
 	glm::mat4 CalculateTransformMat();
 	void MoveToCenter();
@@ -39,7 +43,7 @@ public:
 	Type type;
 	std::vector<float> vertices;
 	std::vector<float> normals;
-	std::vector<float> textures;
+	std::vector<float> texturecoords;
 	std::vector<unsigned int> indices;
 
 	// 0 - min, 1 - max
@@ -49,9 +53,7 @@ public:
 	float scale;
 
 	/* Materials data */
-	glm::vec3 Kd;
-	glm::vec3 Ks;
-	glm::vec3 Ka;
+	Material material;
 
 	/* Matrix */
 	glm::mat4 transformMat;
@@ -61,6 +63,7 @@ public:
 	GLuint verticesBuffer;
 	GLuint normalsBuffer;
 	GLuint indicesBuffer;
+	GLuint texturecoordsBuffer;
 
 private:
 	void SetBoundingBox();

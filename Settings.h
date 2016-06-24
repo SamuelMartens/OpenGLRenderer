@@ -13,6 +13,7 @@ struct Settings
 		cartoon(false),
 		cartoonLevels(4),
 		maxLightNumber(5),
+		maxMixTextures(5),
 		minFogDistance(0),
 		maxFogDistance(0)
 		{};
@@ -30,11 +31,14 @@ struct Settings
 	
 	/* Getters */
 	unsigned int GetMaxLightNumber() const noexcept { return maxLightNumber; };
+	unsigned int GetMaxMixTextures() const noexcept { return maxMixTextures; };
 
 	/* Other functions */
 	void PassToShaderProgram(const ShaderProgram& program) const;
 	bool HasEffects() const noexcept { return (fog || cartoon); };
 
 private:
+	// Don't forget to change this value in shader
 	const unsigned maxLightNumber;
+	const unsigned maxMixTextures;
 };

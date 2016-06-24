@@ -1,17 +1,18 @@
-#include "model.h"
-#include "Graphic.h"
-#include "ext_glm.h"
+#include <vector>
+#include <string>
+#include <cassert>
+#include <cmath>
+#include <iostream>
+#include <fstream>
 
 #define TINYOBJLOADER_IMPLEMENTATION
 #include "tiny_obj_loader\tiny_obj_loader.h"
 #include "glm/mat4x4.hpp"
 #include "gl_core_4_3.h"
 
-#include <vector>
-#include <string>
-#include <cassert>
-#include <cmath>
-#include <iostream>
+#include "model.h"
+#include "Graphic.h"
+#include "ext_glm.h"
 
 namespace
 {
@@ -27,14 +28,17 @@ namespace
 
 		m.vertices.reserve(numPositions);
 		m.normals.reserve(numPositions);
+		m.texturecoords.reserve(numPositions);
 
 		for (auto& shape: shapes)
 		{
 			m.vertices.insert(m.vertices.end(), shape.mesh.positions.begin(), shape.mesh.positions.end());
 			m.normals.insert(m.normals.end(), shape.mesh.normals.begin(), shape.mesh.normals.end());
+			m.texturecoords.insert(m.texturecoords.end(), shape.mesh.texcoords.begin(), shape.mesh.texcoords.end());
 			m.indices.insert(m.indices.end(), shape.mesh.indices.begin(), shape.mesh.indices.end());
 		}
 
+		m.texturecoords.shrink_to_fit();
 		m.vertices.shrink_to_fit();
 		m.normals.shrink_to_fit();
 	}
@@ -45,14 +49,12 @@ transformMat(ext_glm::IdentityMat()),
 position(0, 0, 0, 1),
 slopeAngle(0),
 scale(1),
-Ks(1),
-Ka(1),
-Kd(1),
 type(Model::Type::commonModel)
 {};
 
 int Model::LoadModel(const char* filename)
 {
+	assert(filename);
 	std::string err;
 	std::vector<tinyobj::material_t> materials;
 	std::vector<tinyobj::shape_t> shapes;
@@ -77,14 +79,14 @@ void Model::ClearData(bool freeMemory) noexcept
 	vertices.clear();
 	indices.clear();
 	normals.clear();
-	textures.clear();
+	texturecoords.clear();
 
 	if (freeMemory)
 	{
 		vertices.shrink_to_fit();
 		indices.shrink_to_fit();
 		normals.shrink_to_fit();
-		textures.shrink_to_fit();
+		texturecoords.shrink_to_fit();
 	}
 }
 
@@ -97,6 +99,7 @@ void Model::LoadGlData()
 
 	glEnableVertexAttribArray(static_cast<GLint>(Graphic::VertexAtrib::VertexCoors));
 	glEnableVertexAttribArray(static_cast<GLint>(Graphic::VertexAtrib::Normals));
+	glEnableVertexAttribArray(static_cast<GLint>(Graphic::VertexAtrib::TextureCoord));
 
 	/* Work with vertex buffer array */
 	glGenBuffers(1, &verticesBuffer);
@@ -106,6 +109,10 @@ void Model::LoadGlData()
 	glGenBuffers(1, &normalsBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, normalsBuffer);
 	glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(float), normals.data(), GL_STATIC_DRAW);
+
+	glGenBuffers(1, &texturecoordsBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, texturecoordsBuffer);
+	glBufferData(GL_ARRAY_BUFFER, texturecoords.size() * sizeof(float), normals.data(), GL_STATIC_DRAW);
 
 	glGenBuffers(1, &indicesBuffer);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indicesBuffer);
@@ -118,6 +125,9 @@ void Model::LoadGlData()
 
 	glBindBuffer(GL_ARRAY_BUFFER, normalsBuffer);
 	glVertexAttribPointer(static_cast<GLint>(Graphic::VertexAtrib::Normals), 3, GL_FLOAT, GL_FALSE, 0, NULL);
+
+	glBindBuffer(GL_ARRAY_BUFFER, texturecoordsBuffer);
+	glVertexAttribPointer(static_cast<GLint>(Graphic::VertexAtrib::TextureCoord), 2, GL_FLOAT, GL_FALSE, 0, NULL);
 
 	glBindVertexArray(0);
 
@@ -195,13 +205,7 @@ void Model::MoveToCenter()
 	position = glm::vec4(centerX, centerY, centerZ, 1);
 }
 
-void Model::LoadModelUniforms(GLuint shaderProgram)
+void Model::LoadModelUniforms(const ShaderProgram& shaderProgram) const
 {
-	GLuint KdLoc = glGetUniformLocation(shaderProgram, "Kd");
-	GLuint KsLoc = glGetUniformLocation(shaderProgram, "Ks");
-	GLuint KaLoc = glGetUniformLocation(shaderProgram, "Ka");
-
-	glUniform3fv(KdLoc, 1, &Kd[0]);
-	glUniform3fv(KsLoc, 1, &Ks[0]);
-	glUniform3fv(KaLoc, 1, &Ka[0]);
+	material.PassToShader(shaderProgram);
 }

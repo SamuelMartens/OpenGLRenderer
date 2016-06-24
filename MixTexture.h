@@ -12,18 +12,20 @@ public:
 		, Texture(Texture::Type::MixTexture)
 	{};
 	
-	MixTexture(const Texture& tex ):
+	explicit MixTexture(const Texture& tex ):
 		  Texture(tex)
-		, minWeight(0)
-	{ type = Texture::Type::MixTexture };
+		, mixWeight(0)
+	{
+		type = Texture::Type::MixTexture;
+	};
 	
-	MixTexture(float mWeight):
-		  minWeight(mWeight)
+	explicit MixTexture(float mWeight):
+		  mixWeight(mWeight)
 		, Texture(Texture::Type::MixTexture)
 	{};
 	
 	/* Getters  */
-	void GetMixWeight() noexcept const { return mixWeight; };
+	float GetMixWeight() const noexcept  { return mixWeight; };
 	
 	/* Setters */
 	void SetMixWeight(float newVal )
@@ -33,4 +35,4 @@ public:
 	};
 private:
 	float mixWeight;
-}
+};

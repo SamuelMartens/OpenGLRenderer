@@ -2,9 +2,9 @@
 #include <fstream>
 #include <iostream>
 
-#include "Shader.h"
-
 #include "gl_core_4_3.h"
+
+#include "Shader.h"
 
 std::string Shader::ParseSourceFile(const std::string&&  filePath) const
 {

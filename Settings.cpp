@@ -16,7 +16,11 @@ void Settings::PassToShaderProgram(const ShaderProgram& program) const
 	GLint minFogDistanceLoc = glGetUniformLocation(program.id, "settings.minFogDistance");
 	GLint maxFogDistanceLoc = glGetUniformLocation(program.id, "settings.maxFogDistance");
 
-	if (-1 == cartoonLevelsNumLoc || -1 == isFogLoc || -1 == isCartoonLoc || -1 == minFogDistanceLoc || -1 == maxFogDistanceLoc)
+	if (-1 == cartoonLevelsNumLoc ||
+		-1 == isFogLoc ||
+		-1 == isCartoonLoc ||
+		-1 == minFogDistanceLoc ||
+		-1 == maxFogDistanceLoc)
 		std::cout << "Failed to get settings uniform loc. \n";
 
 	glUniform1i(cartoonLevelsNumLoc, cartoonLevels);

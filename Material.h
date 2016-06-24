@@ -1,12 +1,13 @@
 #pragma once
 
+#include <map>
+#include <vector>
+
 #include "glm\vec3.hpp"
 
 #include "Texture.h"
 #include "MixTexture.h"
-
-#include <map>
-#include <vector>
+#include "ShaderProgram.h"
 
 class Material
 {
@@ -20,6 +21,7 @@ public:
 	bool HasTextureWithType(Texture::Type t) const noexcept { return textures.find(t) != textures.end(); };
 	void SetTexture(const Texture& text);
 	void SetTexture(const Texture&& text);
+	void PassToShader(const ShaderProgram& shaderProgram) const;
 	
 	/* Getters */ 
 	Texture* GetTextureWithType(Texture::Type t); 
@@ -34,4 +36,4 @@ public:
 	
 private:
 	std::map<Texture::Type, Texture> textures;
-}
+};

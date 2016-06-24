@@ -41,7 +41,6 @@ Light::Light(glm::vec4& pos, glm::vec3& dir, LighType t) :
 void Light::NormalizeLightModel()
 {
 	model.scale = 0.02;
-	model.Ka = glm::vec3(50);
 }
 
 void Light::PassToShaderProgram(GLuint programId, int lightInd) const

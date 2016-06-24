@@ -2,7 +2,7 @@
 	
 	layout(early_fragment_tests) in;
 
-	const int lightMaxNumber = 5;
+	//-------- STRUCTS START ----------
 
 	struct LightSource
 	{
@@ -28,22 +28,40 @@
 		int isFog;
 	};
 
+	struct Material
+	{
+		vec3 Kd;
+		vec3 Ka;
+		vec3 Ks;
+	};
+
+	//-------- STRUCTS END ----------
+
+	//-------- UNIFORM DATA START ----------
+
 	subroutine vec3 shadeModelType (LightSource lightSources[lightMaxNumber], vec4 position, vec3 normal);
 	subroutine uniform shadeModelType shadeModel;
 	
 	layout (location=0) out vec4 FragColor;
 
+	const int lightMaxNumber = 5;
+	const int maxMixTexturesNumber = 5;
+
+	uniform Settings settings;
 	uniform LightSource lightSources[lightMaxNumber];
 	uniform int lightSourcesNumber;
-	uniform Settings settings;
 	uniform int useEffects;
+	uniform Material material;
+	// Textures samplers
+	uniform sampler2D diffuseTexture;
+	uniform sampler2D normalTexture;
+	uniform sampler2D transparentTexture;
+	uniform sampler2D mixTextures[maxMixTexturesNumber];
 
-	uniform vec3 Kd;
-	uniform vec3 Ka;
-	uniform vec3 Ks;
-	
 	in vec4 position;
     in vec3 normal;
+
+	//-------- UNIFORM DATA END ----------
 
 	vec3 PointLight (LightSource lightSource, vec4 position, vec3 normal)
 	{
@@ -52,14 +70,14 @@
 		vec3 r = reflect(-s, normal);
         // Half path vector optimization
         //vec3 h = normalize(v + s);
-		vec3 ambient = lightSource.intensityAmbient * Ka;
+		vec3 ambient = lightSource.intensityAmbient * material.Ka;
 		float sDotN = max( dot(s, normal), 0.0);
 		vec3 diffuse = vec3(0.0);
 		vec3 spec = vec3(0.0);
 		if (sDotN > 0.0)
 		{
-			diffuse = lightSource.intensityDiffuse * Kd * sDotN;
-			spec = lightSource.intensitySpecular * Ks * pow(max(dot(r,v) ,0.0), lightSource.shiness);
+			diffuse = lightSource.intensityDiffuse * material.Kd * sDotN;
+			spec = lightSource.intensitySpecular * material.Ks * pow(max(dot(r,v) ,0.0), lightSource.shiness);
 		}
 		return ambient + diffuse + spec;
 	}
@@ -69,7 +87,7 @@
 		vec3 s = normalize(lightSource.direction);
 		// Half path vector optimization
 		//vec3 h = normalize(v + s);
-		vec3 ambient = lightSource.intensityAmbient * Ka;
+		vec3 ambient = lightSource.intensityAmbient * material.Ka;
 		float sDotN = max( dot(s, normal), 0.0);
 		vec3 diffuse = vec3(0.0);
 		vec3 spec = vec3(0.0);
@@ -77,8 +95,8 @@
 		{
 			vec3 v = normalize(-position.xyz);
 			vec3 r = reflect(-s, normal);
-			diffuse = lightSource.intensityDiffuse * Kd * sDotN;
-			spec = lightSource.intensitySpecular * Ks * pow(max(dot(r,v) ,0.0), lightSource.shiness);
+			diffuse = lightSource.intensityDiffuse * material.Kd * sDotN;
+			spec = lightSource.intensitySpecular * material.Ks * pow(max(dot(r,v) ,0.0), lightSource.shiness);
 		}
 		return ambient + diffuse + spec;	
 	}
@@ -88,7 +106,7 @@
 		vec3 s = normalize(vec3(lightSource.position - position));
 		float angle = acos(dot(-s, lightSource.direction));
 		float cutoff = radians( clamp(lightSource.coneAngle, 0.0, 90.0));
-		vec3 ambient = lightSource.intensityAmbient * Ka;
+		vec3 ambient = lightSource.intensityAmbient * material.Ka;
 		if (angle <= cutoff)
 		{
 			// Half path vector optimization
@@ -97,8 +115,8 @@
 			float spotFactor = pow( dot(-s, lightSource.direction), lightSource.coneShiness);
 			vec3 v = normalize(-position.xyz);
 			vec3 r = reflect(-s, normal);
-			vec3 diffuse = lightSource.intensityDiffuse * Kd * sDotN;
-			vec3 spec = lightSource.intensitySpecular * Ks * pow(max(dot(r,v) ,0.0), lightSource.shiness);
+			vec3 diffuse = lightSource.intensityDiffuse * material.Kd * sDotN;
+			vec3 spec = lightSource.intensitySpecular * material.Ks * pow(max(dot(r,v) ,0.0), lightSource.shiness);
 			return ambient + spotFactor * ( diffuse + spec );
 		}
 		else
