@@ -2,6 +2,13 @@
 	
 	layout(early_fragment_tests) in;
 
+	// -------- START LIMITS ------
+
+	const int lightMaxNumber = 5;
+	const int maxMixTexturesNumber = 5;
+
+	// ------- END LIMITS --------
+
 	//-------- STRUCTS START ----------
 
 	struct LightSource
@@ -28,11 +35,23 @@
 		int isFog;
 	};
 
+	struct MixTexture
+	{
+		sampler2D texure;
+		float mixWeight;
+	};
+
 	struct Material
 	{
 		vec3 Kd;
 		vec3 Ka;
 		vec3 Ks;
+		int mixTexturesNumber;
+		// Textures samplers
+		sampler2D diffuseTexture;
+		sampler2D normalTexture;
+		sampler2D transparentTexture;
+		MixTexture mixTextures[maxMixTexturesNumber];
 	};
 
 	//-------- STRUCTS END ----------
@@ -44,26 +63,20 @@
 	
 	layout (location=0) out vec4 FragColor;
 
-	const int lightMaxNumber = 5;
-	const int maxMixTexturesNumber = 5;
-
 	uniform Settings settings;
 	uniform LightSource lightSources[lightMaxNumber];
 	uniform int lightSourcesNumber;
 	uniform int useEffects;
 	uniform Material material;
-	// Textures samplers
-	uniform sampler2D diffuseTexture;
-	uniform sampler2D normalTexture;
-	uniform sampler2D transparentTexture;
-	uniform sampler2D mixTextures[maxMixTexturesNumber];
+	
 
 	in vec4 position;
     in vec3 normal;
+	in vec2 textureCoord;
 
 	//-------- UNIFORM DATA END ----------
 
-	vec3 PointLight (LightSource lightSource, vec4 position, vec3 normal)
+	vec3 PointLight (LightSource lightSource, vec4 position, vec3 normal, out vec3 spec)
 	{
 		vec3 s = normalize(vec3(lightSource.position - position));
 		vec3 v = normalize(-position.xyz);
@@ -73,16 +86,16 @@
 		vec3 ambient = lightSource.intensityAmbient * material.Ka;
 		float sDotN = max( dot(s, normal), 0.0);
 		vec3 diffuse = vec3(0.0);
-		vec3 spec = vec3(0.0);
+		spec = vec3(0.0);
 		if (sDotN > 0.0)
 		{
 			diffuse = lightSource.intensityDiffuse * material.Kd * sDotN;
 			spec = lightSource.intensitySpecular * material.Ks * pow(max(dot(r,v) ,0.0), lightSource.shiness);
 		}
-		return ambient + diffuse + spec;
+		return ambient + diffuse;
 	}
 
-	vec3 DirectionLight (LightSource lightSource, vec4 position, vec3 normal)
+	vec3 DirectionLight (LightSource lightSource, vec4 position, vec3 normal, out vec3 spec)
 	{
 		vec3 s = normalize(lightSource.direction);
 		// Half path vector optimization
@@ -90,7 +103,7 @@
 		vec3 ambient = lightSource.intensityAmbient * material.Ka;
 		float sDotN = max( dot(s, normal), 0.0);
 		vec3 diffuse = vec3(0.0);
-		vec3 spec = vec3(0.0);
+		spec = vec3(0.0);
 		if (sDotN > 0.0)
 		{
 			vec3 v = normalize(-position.xyz);
@@ -98,10 +111,10 @@
 			diffuse = lightSource.intensityDiffuse * material.Kd * sDotN;
 			spec = lightSource.intensitySpecular * material.Ks * pow(max(dot(r,v) ,0.0), lightSource.shiness);
 		}
-		return ambient + diffuse + spec;	
+		return ambient + diffuse;	
 	}
 	
-	vec3 ConeLight(LightSource lightSource, vec4 position, vec3 normal)
+	vec3 ConeLight(LightSource lightSource, vec4 position, vec3 normal, out vec3 spec)
 	{
 		vec3 s = normalize(vec3(lightSource.position - position));
 		float angle = acos(dot(-s, lightSource.direction));
@@ -116,11 +129,13 @@
 			vec3 v = normalize(-position.xyz);
 			vec3 r = reflect(-s, normal);
 			vec3 diffuse = lightSource.intensityDiffuse * material.Kd * sDotN;
-			vec3 spec = lightSource.intensitySpecular * material.Ks * pow(max(dot(r,v) ,0.0), lightSource.shiness);
-			return ambient + spotFactor * ( diffuse + spec );
+			spec = lightSource.intensitySpecular * material.Ks * pow(max(dot(r,v) ,0.0), lightSource.shiness);
+			spec *= spotFactor;
+			return ambient + spotFactor * diffuse;
 		}
 		else
 		{
+			spec = vec3(0.0);
 			return ambient;
 		}
 	}
@@ -157,22 +172,32 @@
 	vec3 PhongLight(LightSource lightSources[lightMaxNumber], vec4 position, vec3 normal)
 	{
 		vec3 lightIntensity = vec3(0.0);
+		vec3 specComp = vec3(0.0);
+		vec3 spec = vec3(0.0);
 		for (int i=0; i < lightSourcesNumber; ++i)
 		{
 			switch(lightSources[i].type)
 			{
 			case 0:
                lightIntensity += vec3(0.0, 0.0, 0.0);
+			   break;
             case 1:
-               lightIntensity += PointLight(lightSources[i], position, normal);
+               lightIntensity += PointLight(lightSources[i], position, normal, spec);
+			   specComp += spec;
+			   break;
             case 2:
-			   lightIntensity += DirectionLight(lightSources[i], position, normal);
+			   lightIntensity += DirectionLight(lightSources[i], position, normal, spec);
+			   specComp += spec;
+			   break;
 			case 3:
-			   lightIntensity += ConeLight(lightSources[i], position, normal);
+			   lightIntensity += ConeLight(lightSources[i], position, normal, spec);
+			   specComp += spec;
+			   break;
 			}
 		}
-
+		vec4 texColor = texture(material.diffuseTexture, textureCoord);
 		lightIntensity = UseEffects(lightIntensity, position);
+		lightIntensity = lightIntensity * vec3(texColor.x, texColor.y, texColor.z) + specComp;
 		return lightIntensity;
 	}
 	

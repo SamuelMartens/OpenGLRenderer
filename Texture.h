@@ -11,6 +11,7 @@
 class Texture
 {
 public:
+
 	enum class Type
 	{
 		Diffuse = 0,
@@ -19,43 +20,41 @@ public:
 		MixTexture = 3
 	};
 
-	Texture() :
-		  type(Type::Diffuse)
-		, initialized(false)
-		, id(-1)
-	{};
-
-	explicit Texture(Texture::Type t):
-		  initialized(false)
-		, type(t)
-		, id(-1)
-	{};
-
-	virtual ~Texture(){  };
+	virtual ~Texture() {};
 
 	/* Getters */
 	GLuint GetId() const noexcept { return id; };
 	bool isInitialized() const noexcept { return initialized; };
+	Texture::Type GetType() { return type; };
 
 	void Bind() const 
 	{
 		assert(initialized);
 		glBindTexture(GL_TEXTURE_2D, id);
 	};
-	int ActivateGLTextureSlot(int mixTextureNum=-1) const;
-	int GetUniformLocation(const ShaderProgram& shaderProgram, int mixTextureNum=-1) const; 
-	void Load(std::string&& filePath, int mixTextureNum=-1);
-	//void PassToShader(const ShaderProgram& ) const;
+	
+ 	virtual int GetSamplerUniformLocation(const ShaderProgram& shaderProgram) const = 0; 
+	virtual void LoadUniforms(const ShaderProgram& shaderProgram) const {};
+	virtual int ActivateGLTextureSlot() const;
+	virtual void Load(std::string&& filePath, const ShaderProgram& shaderProgram);
+
 	void ClearGLData() noexcept
 	{
 		glDeleteTextures(1, &id);
 		id = -1;
 	}
-	
-	Type type;
 
-private:
+protected:
+
+	explicit Texture(Texture::Type t) :
+		initialized(false)
+		, type(t)
+		, id(-1)
+	{};
+
+	Type type;
 	GLuint id;
 	bool initialized;
+	float mixWeight;
 };
 

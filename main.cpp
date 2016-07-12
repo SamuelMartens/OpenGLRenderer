@@ -4,6 +4,7 @@
 #include "Settings.h"
 #include "ShaderProgram.h"
 #include "Shader.h"
+#include "DiffuseTexture.h"
 
 #include <GLFW/glfw3.h>
 #include <vector>
@@ -39,11 +40,8 @@ int main()
 	Shader fragmentShader(Shader::Type::Fragment, "E:\\C++\\OpenGLtutorial\\Shaders\\mainFragment.glsl");
 	ShaderProgram shaderProgram(vertexShader, fragmentShader);
 
-	/* Set settings */
-	Settings settings;
-
 	/* Create and init renderer */
-	Graphic::Renderer renderer(settings);
+	Graphic::Renderer renderer;
 	renderer.shaderProgram = shaderProgram;
 	
 	if (0 != renderer.Init())
@@ -51,8 +49,13 @@ int main()
 
 	/* Add models */
 	Model model;
-	// DEBUG swap
-	model.LoadModel("E:\\C++\\OpenGLtutorial\\Stormtrooper.obj");
+	Material material;
+	material.SetTexture(std::make_shared<DiffuseTexture>());
+	material.GetTextureWithType(Texture::Type::Diffuse)->Load("E:\\C++\\OpenGLtutorial\\texture.jpg", shaderProgram);
+	model.material = material;
+	model.LoadModel("E:\\C++\\OpenGLtutorial\\resources\\sphere.obj");
+	model.scale = 0.5;
+	model.position = glm::vec4(0.5, 0.5, 0, 1);
 	renderer.AddModel(model);
 
 	/* Add light */

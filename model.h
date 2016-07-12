@@ -9,6 +9,7 @@
 #include "gl_core_4_3.h"
 
 #include "Material.h"
+#include "Resources.h"
 
 class Model
 {
@@ -35,7 +36,7 @@ public:
 		glDeleteBuffers(4, buffers);
 		verticesBuffer = normalsBuffer = indicesBuffer = texturecoordsBuffer = -1;
 	};
-	void Draw() const;
+	void Draw(const Resources& resources);
 	glm::mat4 CalculateTransformMat();
 	void MoveToCenter();
 	

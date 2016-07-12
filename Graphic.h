@@ -26,7 +26,7 @@ namespace Graphic
 	class Renderer
 	{
 	public:
-		explicit Renderer(Settings& set);
+		Renderer();
 		~Renderer()
 		{
 			for (auto& model : models)
@@ -52,7 +52,6 @@ namespace Graphic
 		void AddLight(const Light& l);
 		void AddLight(std::unique_ptr<Light> l);
 
-		Settings settings;
 		ShaderProgram shaderProgram;
 	private:
 		std::vector<Model> models;
@@ -62,5 +61,6 @@ namespace Graphic
 		GLint transMatLoc;
 		GLuint modelSubroutine;
 		GLuint lightSubroutine;
+
 	};
 }

@@ -13,9 +13,19 @@
 #include "model.h"
 #include "Graphic.h"
 #include "ext_glm.h"
+#include "Resources.h"
 
 namespace
 {
+
+	inline void ReverseTextureCoord(std::vector<float>& texcoord)
+	{
+		for (auto& coord: texcoord)
+		{
+			coord = std::fabs(1 - coord);
+		}
+	}
+
 	void ConvertToModelFormat(Model& m, std::vector<tinyobj::shape_t>&& shapes)
 	{
 		m.ClearData();
@@ -41,6 +51,8 @@ namespace
 		m.texturecoords.shrink_to_fit();
 		m.vertices.shrink_to_fit();
 		m.normals.shrink_to_fit();
+
+		ReverseTextureCoord(m.texturecoords);
 	}
 }
 
@@ -112,7 +124,7 @@ void Model::LoadGlData()
 
 	glGenBuffers(1, &texturecoordsBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, texturecoordsBuffer);
-	glBufferData(GL_ARRAY_BUFFER, texturecoords.size() * sizeof(float), normals.data(), GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, texturecoords.size() * sizeof(float), texturecoords.data(), GL_STATIC_DRAW);
 
 	glGenBuffers(1, &indicesBuffer);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indicesBuffer);
@@ -133,13 +145,20 @@ void Model::LoadGlData()
 
 }
 
-void Model::Draw() const
+void Model::Draw(const Resources& resources)
 {
 	assert(std::fmod(indices.size(), 3) == 0);
 
 	glBindVertexArray(vertexArrayBuffer);
+	material.BindTextures();
+	const Texture* texture = material.GetTextureWithType(Texture::Type::Diffuse);
+	if (texture)
+		glBindTexture(GL_TEXTURE_2D, texture->GetId());
+	else
+		glBindTexture(GL_TEXTURE_2D, resources.default_texture.GetId());
 
 	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, nullptr);
+	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 glm::mat4 Model::CalculateTransformMat()

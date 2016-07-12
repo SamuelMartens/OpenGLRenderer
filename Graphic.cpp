@@ -119,9 +119,8 @@ void Graphic::InitFigure(std::vector<float>& vertices, std::vector<float>& color
 	
 }
 
-Graphic::Renderer::Renderer(Settings& set) :
+Graphic::Renderer::Renderer() :
 	  transMatLoc(-1)
-	, settings(set)
 {};
 
 int Graphic::Renderer::Init() 
@@ -131,8 +130,8 @@ int Graphic::Renderer::Init()
 		std::cout<<"Shader program is not linked. Failed to init renderer \n";
 		return 1;
 	}
-
-	settings.PassToShaderProgram(shaderProgram);
+	Settings::Instance().resources.Init(shaderProgram);
+	Settings::Instance().PassToShaderProgram(shaderProgram);
 	
 	if (InitUniforms() != 0)
 		std::cout << "Failed to load uniforms \n";
@@ -164,7 +163,7 @@ void Graphic::Renderer::Draw(float angle)
 		models[i].CalculateTransformMat();
 		SetTransMatrix(models[i].transformMat);
 		models[i].LoadModelUniforms(shaderProgram);
-		models[i].Draw();
+		models[i].Draw(Settings::Instance().resources);
 		
 	}
 }
@@ -236,7 +235,7 @@ void Graphic::Renderer::AddLight(std::unique_ptr<Light> l)
 
 void Graphic::Renderer::LoadLightDataToOpenGL() const
 {
-	assert(lights.size() <= settings.GetMaxLightNumber());
+	assert(lights.size() <= Settings::Instance().GetMaxLightNumber());
 	for (unsigned i = 0; i < lights.size(); ++i)
 		lights[i].PassToShaderProgram(shaderProgram.id, i);
 

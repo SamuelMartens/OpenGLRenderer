@@ -25,7 +25,7 @@ public:
 
 	/*  Getters */
 	glm::vec4 GetPosition() const noexcept { return model.position; };
-	Model GetModel() const noexcept { return model; };
+	const Model& GetModel() const noexcept { return model; };
 	glm::vec3 GetDirection() const noexcept { return direction; };
 
 
