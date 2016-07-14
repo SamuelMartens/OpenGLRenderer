@@ -24,22 +24,17 @@ public:
 	
 	/* Setters adders */
 	void SetTexture(std::shared_ptr<Texture> text);
-	/*void AddMixTexture(const MixTexture& text)
+	void AddMixTexture(std::shared_ptr<MixTexture> text)
 	{
-		assert(Texture::Type::MixTexture == text.GetType());
-		assert(mixTextures.size() <= Settings::Instance().GetMaxMixTextures());
-		mixTextures.push_back(text);
-	};*/
-	/*void AddMixTexture(const MixTexture&& text)
-	{
-		assert(Texture::Type::MixTexture == text-GetType());
-		assert(mixTextures.size() <= Settings::Instance().GetMaxMixTextures());
-		mixTextures.push_back(text);
-	};*/
+		assert(Texture::Type::MixTexture == text->GetType());
+		assert(mixTextures.size() < Settings::Instance().GetMaxMixTextures());
+		text->SetIndexNumber(mixTextures);
+		mixTextures.push_back(std::move(text));
+	};
 
 	/* Getters */
 	Texture* GetTextureWithType(Texture::Type t);
-	const std::vector<MixTexture>& GetMixTextureVec() const noexcept { return mixTextures; };
+	const std::vector<std::shared_ptr<MixTexture>>& GetMixTextureVec() const noexcept { return mixTextures; };
 
 	void PassToShader(const ShaderProgram& shaderProgram) const;
 	void BindTextures();
@@ -61,7 +56,7 @@ private:
 	void BindMixTextures();
 
 	/* Mix Textures */
-	std::vector<MixTexture> mixTextures;
+	std::vector<std::shared_ptr<MixTexture>> mixTextures;
 
 	/* Standart textures */
 	std::map<Texture::Type, std::shared_ptr<Texture>> textures;

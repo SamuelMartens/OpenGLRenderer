@@ -2,14 +2,14 @@
 	
 	layout(early_fragment_tests) in;
 
-	// -------- START LIMITS ------
+	// ======== START LIMITS =======
 
 	const int lightMaxNumber = 5;
 	const int maxMixTexturesNumber = 5;
 
-	// ------- END LIMITS --------
+	// ======== END LIMITS =========
 
-	//-------- STRUCTS START ----------
+	//======== STRUCTS START =======
 
 	struct LightSource
 	{
@@ -37,7 +37,7 @@
 
 	struct MixTexture
 	{
-		sampler2D texure;
+		sampler2D texture;
 		float mixWeight;
 	};
 
@@ -54,9 +54,9 @@
 		MixTexture mixTextures[maxMixTexturesNumber];
 	};
 
-	//-------- STRUCTS END ----------
+	//======= STRUCTS END =========
 
-	//-------- UNIFORM DATA START ----------
+	//======= UNIFORM DATA START ========
 
 	subroutine vec3 shadeModelType (LightSource lightSources[lightMaxNumber], vec4 position, vec3 normal);
 	subroutine uniform shadeModelType shadeModel;
@@ -74,8 +74,9 @@
     in vec3 normal;
 	in vec2 textureCoord;
 
-	//-------- UNIFORM DATA END ----------
+	//======== UNIFORM DATA END ========
 
+	// ====== LIGHTS START ======
 	vec3 PointLight (LightSource lightSource, vec4 position, vec3 normal, out vec3 spec)
 	{
 		vec3 s = normalize(vec3(lightSource.position - position));
@@ -140,6 +141,10 @@
 		}
 	}
 
+	// ======== LIGHTS END =======
+
+	// ======== EFFECTS START=====
+
 	vec3 CartoonEffect(vec3 initColor )
 	{
 		float oneStep = 1.0 / settings.cartoonLevelsNumber;
@@ -168,6 +173,27 @@
 		return initColor;
 	}
 
+	// ========= EFFECTS END ==========
+	// ========= TEXTURES START =======
+
+	vec4 ApplyMixTextures(vec4 texColor)
+	{
+		for (int i = 0 ; i < material.mixTexturesNumber; ++i)
+		{
+			vec4 mixTexColor = texture(material.mixTextures[i].texture, textureCoord);
+			texColor = mix(texColor, mixTexColor, material.mixTextures[i].mixWeight);
+		}
+
+		return texColor;
+	}
+
+	vec4 ApplyTextures(vec3 lightIntensity)
+	{
+		vec4 texColor = texture(material.diffuseTexture, textureCoord);
+		texColor = ApplyMixTextures(texColor);
+		return texColor;
+	}
+	// ======== TEXTURES END =========
 	subroutine ( shadeModelType )
 	vec3 PhongLight(LightSource lightSources[lightMaxNumber], vec4 position, vec3 normal)
 	{
@@ -195,9 +221,10 @@
 			   break;
 			}
 		}
-		vec4 texColor = texture(material.diffuseTexture, textureCoord);
+		vec4 texColor = ApplyTextures(lightIntensity);
+		lightIntensity = lightIntensity * vec3(texColor.x, texColor.y, texColor.z);
 		lightIntensity = UseEffects(lightIntensity, position);
-		lightIntensity = lightIntensity * vec3(texColor.x, texColor.y, texColor.z) + specComp;
+		lightIntensity += specComp;
 		return lightIntensity;
 	}
 	

@@ -151,11 +151,6 @@ void Model::Draw(const Resources& resources)
 
 	glBindVertexArray(vertexArrayBuffer);
 	material.BindTextures();
-	const Texture* texture = material.GetTextureWithType(Texture::Type::Diffuse);
-	if (texture)
-		glBindTexture(GL_TEXTURE_2D, texture->GetId());
-	else
-		glBindTexture(GL_TEXTURE_2D, resources.default_texture.GetId());
 
 	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, nullptr);
 	glBindTexture(GL_TEXTURE_2D, 0);

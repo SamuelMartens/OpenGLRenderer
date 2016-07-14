@@ -5,6 +5,7 @@
 #include "ShaderProgram.h"
 #include "Shader.h"
 #include "DiffuseTexture.h"
+#include "MixTexture.h"
 
 #include <GLFW/glfw3.h>
 #include <vector>
@@ -47,11 +48,20 @@ int main()
 	if (0 != renderer.Init())
 		std::cout << "Failed to init renderer";
 
+	/* Settings change */
+	Settings::Instance().cartoon = true;
+	Settings::Instance().cartoonLevels = 10;
+	Settings::Instance().PassToShaderProgram(renderer.shaderProgram);
+
 	/* Add models */
 	Model model;
 	Material material;
 	material.SetTexture(std::make_shared<DiffuseTexture>());
 	material.GetTextureWithType(Texture::Type::Diffuse)->Load("E:\\C++\\OpenGLtutorial\\texture.jpg", shaderProgram);
+	material.AddMixTexture(std::make_shared<MixTexture>(0.9));
+	material.GetMixTextureVec().front()->Load("E:\\C++\\OpenGLtutorial\\mixTexture.jpg", shaderProgram);
+	material.AddMixTexture(std::make_shared<MixTexture>(0.7));
+	material.GetMixTextureVec()[1]->Load("E:\\C++\\OpenGLtutorial\\mixTexture2.jpg", shaderProgram);
 	model.material = material;
 	model.LoadModel("E:\\C++\\OpenGLtutorial\\resources\\sphere.obj");
 	model.scale = 0.5;

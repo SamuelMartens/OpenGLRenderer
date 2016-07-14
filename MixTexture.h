@@ -19,7 +19,9 @@ public:
 		  mixWeight(newMixWeight)
 		, Texture(Texture::Type::MixTexture)
 		, indexNumber(-1)
-	{};
+	{
+		assert(newMixWeight >= 0 && newMixWeight <= 1);
+	};
 
 	/* Getters  */
 	float GetMixWeight() const noexcept { return mixWeight; };
@@ -35,7 +37,7 @@ public:
 		assert(newMixWeight >= 0 && newMixWeight <= 1);
 		mixWeight = newMixWeight;
 	}
-	void SetindexNumber(const std::vector<std::shared_ptr<MixTexture>>& mixTextureContainer)
+	void SetIndexNumber(const std::vector<std::shared_ptr<MixTexture>>& mixTextureContainer)
 	{
 		// MUST be called before add this texture to passed container
 		assert(mixTextureContainer.size() < Settings::Instance().GetMaxMixTextures());

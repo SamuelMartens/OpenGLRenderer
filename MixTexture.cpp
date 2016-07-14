@@ -43,6 +43,7 @@ int MixTexture::ActivateGLTextureSlot() const
 {
 	assert(0 <= indexNumber);
 	int slotNumber = static_cast<int>(type) + indexNumber;
-	glActiveTexture(GL_TEXTURE0 + indexNumber);
+
+	glActiveTexture(GL_TEXTURE0 + slotNumber);
 	return slotNumber;
 }

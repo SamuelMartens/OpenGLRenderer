@@ -69,17 +69,17 @@ void Material::BindStandartTextures()
 {
 	const Texture* texture = GetTextureWithType(Texture::Type::Diffuse);
 	if (texture)
-		glBindTexture(GL_TEXTURE_2D, texture->GetId());
+		texture->Bind();
 	else
-		glBindTexture(GL_TEXTURE_2D, Settings::Instance().resources.default_texture.GetId());
+		Settings::Instance().resources.default_texture.Bind();
 
 	texture = GetTextureWithType(Texture::Type::Transparent);
 	if (texture)
-		glBindTexture(GL_TEXTURE_2D, texture->GetId());
+		texture->Bind();
 
 	texture = GetTextureWithType(Texture::Type::Normal);
 	if (texture)
-		glBindTexture(GL_TEXTURE_2D, texture->GetId());
+		texture->Bind();
 
 }
 
@@ -87,7 +87,7 @@ void Material::BindMixTextures()
 {
 	for (unsigned i = 0; i < mixTextures.size(); ++i)
 	{
-		glBindTexture(GL_TEXTURE_2D, mixTextures[i].GetId());
+		mixTextures[i]->Bind();
 	}
 }
 
@@ -95,7 +95,7 @@ void Material::LoadMixTextureUniforms(const ShaderProgram& shaderProgram) const
 {
 	for (unsigned i = 0; i < mixTextures.size(); ++i)
 	{
-		//int weightLoc = mixTextures[i].GetMixWeightLocation(shaderProgram);
-		mixTextures[i].LoadUniforms(shaderProgram);
+		int weightLoc = mixTextures[i]->GetMixWeightLocation(shaderProgram);
+		mixTextures[i]->LoadUniforms(shaderProgram);
 	}
 }

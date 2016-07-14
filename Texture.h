@@ -30,13 +30,15 @@ public:
 	void Bind() const 
 	{
 		assert(initialized);
+		ActivateGLTextureSlot();
 		glBindTexture(GL_TEXTURE_2D, id);
+		
 	};
 	
  	virtual int GetSamplerUniformLocation(const ShaderProgram& shaderProgram) const = 0; 
 	virtual void LoadUniforms(const ShaderProgram& shaderProgram) const {};
 	virtual int ActivateGLTextureSlot() const;
-	virtual void Load(std::string&& filePath, const ShaderProgram& shaderProgram);
+	void Load(std::string&& filePath, const ShaderProgram& shaderProgram);
 
 	void ClearGLData() noexcept
 	{

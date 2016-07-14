@@ -18,7 +18,6 @@ struct Settings
 	/* Toon shading settings */
 	bool cartoon;
 	unsigned cartoonLevels;
-	bool flatShading;
 	
 	/* Getters */
 	static Settings& Instance()
