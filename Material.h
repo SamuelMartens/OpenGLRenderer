@@ -52,6 +52,7 @@ public:
 	
 private:
 	void LoadMixTextureUniforms(const ShaderProgram& shaderProgram) const;
+	void LoadStandartTexturesUniforms(const ShaderProgram& shaderProgram) const;
 	void BindStandartTextures();
 	void BindMixTextures();
 

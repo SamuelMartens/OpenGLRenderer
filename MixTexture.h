@@ -22,14 +22,14 @@ public:
 	{
 		assert(newMixWeight >= 0 && newMixWeight <= 1);
 	};
+	~MixTexture() = default;
 
 	/* Getters  */
 	float GetMixWeight() const noexcept { return mixWeight; };
 	int GetIndexNumber() const noexcept { return indexNumber; };
 	int GetMixWeightLocation(const ShaderProgram& shaderProgram) const;
 	virtual int GetSamplerUniformLocation(const ShaderProgram& shaderProgram) const override;
-	virtual void LoadUniforms(const ShaderProgram& shaderProgram) const override;
-	virtual int ActivateGLTextureSlot() const override;
+	
 	
 	/* Setters */
 	void SetMixWeight(float newMixWeight)
@@ -43,6 +43,9 @@ public:
 		assert(mixTextureContainer.size() < Settings::Instance().GetMaxMixTextures());
 		indexNumber = mixTextureContainer.size();
 	}
+
+	virtual void LoadUniforms(const ShaderProgram& shaderProgram) const override;
+	virtual int ActivateGLTextureSlot() const override;
 
 private:
 	float mixWeight;

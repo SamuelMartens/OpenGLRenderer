@@ -56,6 +56,7 @@ void Material::PassToShader(const ShaderProgram& shaderProgram) const
 	else
 		glUniform1i(uniformLoc, mixTextures.size());
 
+	LoadStandartTexturesUniforms(shaderProgram);
 	LoadMixTextureUniforms(shaderProgram);
 }
 
@@ -76,6 +77,8 @@ void Material::BindStandartTextures()
 	texture = GetTextureWithType(Texture::Type::Transparent);
 	if (texture)
 		texture->Bind();
+	else
+		Settings::Instance().resources.default_transparent_texture.Bind();
 
 	texture = GetTextureWithType(Texture::Type::Normal);
 	if (texture)
@@ -97,5 +100,13 @@ void Material::LoadMixTextureUniforms(const ShaderProgram& shaderProgram) const
 	{
 		int weightLoc = mixTextures[i]->GetMixWeightLocation(shaderProgram);
 		mixTextures[i]->LoadUniforms(shaderProgram);
+	}
+}
+
+void Material::LoadStandartTexturesUniforms(const ShaderProgram& shaderProgram) const
+{
+	for (auto it = textures.begin(); it != textures.end(); ++it)
+	{
+		it->second->LoadUniforms(shaderProgram);
 	}
 }

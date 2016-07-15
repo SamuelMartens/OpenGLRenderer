@@ -1,6 +1,7 @@
 #pragma once
 
 #include "DiffuseTexture.h"
+#include "TransparentTexture.h"
 #include "ShaderProgram.h"
 
 class Resources
@@ -13,10 +14,10 @@ public:
 	void Init(const ShaderProgram& shaderProgram);
 
 	/* Getters */
-	bool isInitialized() const noexcept { return initialized; };
+	bool IsInitialized() const noexcept { return initialized; };
 
 	DiffuseTexture default_texture;
-	//Texture light_sources_texture;
+	TransparentTexture default_transparent_texture;
 
 private:
 	bool initialized;

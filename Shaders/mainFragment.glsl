@@ -1,6 +1,6 @@
 #version 430
 	
-	layout(early_fragment_tests) in;
+	//layout(early_fragment_tests) in;
 
 	// ======== START LIMITS =======
 
@@ -41,6 +41,12 @@
 		float mixWeight;
 	};
 
+	struct TransparentTexture
+	{
+		sampler2D texture;
+		float transparentEdge;
+	};
+
 	struct Material
 	{
 		vec3 Kd;
@@ -50,7 +56,7 @@
 		// Textures samplers
 		sampler2D diffuseTexture;
 		sampler2D normalTexture;
-		sampler2D transparentTexture;
+		TransparentTexture transparentTexture;
 		MixTexture mixTextures[maxMixTexturesNumber];
 	};
 
@@ -176,6 +182,15 @@
 	// ========= EFFECTS END ==========
 	// ========= TEXTURES START =======
 
+	void ApplyTransparentTexture()
+	{
+		vec4 texColor = texture(material.transparentTexture.texture, textureCoord);
+		if (texColor.y < material.transparentTexture.transparentEdge)
+		{
+			discard;
+		}
+	}
+
 	vec4 ApplyMixTextures(vec4 texColor)
 	{
 		for (int i = 0 ; i < material.mixTexturesNumber; ++i)
@@ -187,9 +202,13 @@
 		return texColor;
 	}
 
-	vec4 ApplyTextures(vec3 lightIntensity)
+	vec4 ApplyTextures()
 	{
+		// Apply transparent texture
+		ApplyTransparentTexture();
+		// Apply diffuse texture
 		vec4 texColor = texture(material.diffuseTexture, textureCoord);
+		// Apply mix textures
 		texColor = ApplyMixTextures(texColor);
 		return texColor;
 	}
@@ -221,10 +240,9 @@
 			   break;
 			}
 		}
-		vec4 texColor = ApplyTextures(lightIntensity);
+		vec4 texColor = ApplyTextures();
 		lightIntensity = lightIntensity * vec3(texColor.x, texColor.y, texColor.z);
-		lightIntensity = UseEffects(lightIntensity, position);
-		lightIntensity += specComp;
+		lightIntensity = UseEffects(lightIntensity, position) + specComp;
 		return lightIntensity;
 	}
 	
@@ -235,7 +253,12 @@
 	}
 
 	void main()
-	{
-		vec3 lightIntensity = shadeModel(lightSources, position, normal);
+	{	
+
+		vec3 lightIntensity;
+		if (!gl_FrontFacing)
+			lightIntensity = shadeModel(lightSources, position, normal);
+		else
+			lightIntensity = shadeModel(lightSources, position, -normal);
 		FragColor=vec4(lightIntensity , 1.0);
 	}
