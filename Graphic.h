@@ -20,7 +20,8 @@ namespace Graphic
 	{
 		VertexCoors = 0,
 		Normals = 1,
-		TextureCoord = 2
+		TextureCoord = 2,
+		Tangents = 3
 	};
 
 	class Renderer
@@ -41,9 +42,10 @@ namespace Graphic
 		void Reload(float angle); // Do nothing
 		void ClearScreen() const;
 
-		/* Set OpenGL positions */
+		/* Set OpenGL data */
 		void SetTransMatrix(glm::mat4 &transMat);
 		void LoadLightDataToOpenGL() const;
+		void ActivateAppropriteToModelSubroutines(const Model& model) const;
 
 		/* Adding of elements */
 		void AddModel(const Model&& m);
@@ -61,6 +63,9 @@ namespace Graphic
 		GLint transMatLoc;
 		GLuint modelSubroutine;
 		GLuint lightSubroutine;
+
+		GLuint normalTextureSubroutines[2];
+		GLuint noNormalTextureSubroutines[2];
 
 	};
 }

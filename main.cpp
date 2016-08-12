@@ -7,6 +7,7 @@
 #include "DiffuseTexture.h"
 #include "MixTexture.h"
 #include "TransparentTexture.h"
+#include "NormalTexture.h"
 
 #include <GLFW/glfw3.h>
 #include <vector>
@@ -55,10 +56,12 @@ int main()
 	/* Add models */
 	Model model;
 	Material material;
-	material.SetTexture(std::make_shared<DiffuseTexture>());
-	material.GetTextureWithType(Texture::Type::Diffuse)->Load("E:\\C++\\OpenGLtutorial\\texture.jpg", shaderProgram);
-	material.SetTexture(std::make_shared<TransparentTexture>(0.9));
-	material.GetTextureWithType(Texture::Type::Transparent)->Load("E:\\C++\\OpenGLtutorial\\texture.jpg", shaderProgram);
+	//material.SetTexture(std::make_shared<DiffuseTexture>());
+	//material.GetTextureWithType(Texture::Type::Diffuse)->Load("E:\\C++\\OpenGLtutorial\\texture.jpg", shaderProgram);
+	//material.SetTexture(std::make_shared<TransparentTexture>(0.9));
+	//material.GetTextureWithType(Texture::Type::Transparent)->Load("E:\\C++\\OpenGLtutorial\\texture.jpg", shaderProgram);
+	material.SetTexture(std::make_shared<NormalTexture>());
+	material.GetTextureWithType(Texture::Type::Normal)->Load("E:\\C++\\OpenGLtutorial\\texture.jpg", shaderProgram);
 	model.material = material;
 	model.LoadModel("E:\\C++\\OpenGLtutorial\\resources\\sphere.obj");
 	model.scale = 0.5;

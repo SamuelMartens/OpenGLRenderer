@@ -39,6 +39,7 @@ namespace
 		m.vertices.reserve(numPositions);
 		m.normals.reserve(numPositions);
 		m.texturecoords.reserve(numPositions);
+		m.indices.reserve(numPositions / 3);
 
 		for (auto& shape: shapes)
 		{
@@ -51,6 +52,7 @@ namespace
 		m.texturecoords.shrink_to_fit();
 		m.vertices.shrink_to_fit();
 		m.normals.shrink_to_fit();
+		m.indices.shrink_to_fit();
 
 		ReverseTextureCoord(m.texturecoords);
 	}
@@ -61,7 +63,11 @@ transformMat(ext_glm::IdentityMat()),
 position(0, 0, 0, 1),
 slopeAngle(0),
 scale(1),
-type(Model::Type::commonModel)
+type(Model::Type::commonModel),
+vertexArrayBuffer(0),
+indicesBuffer(0),
+normalsBuffer(0),
+texturecoordsBuffer(0)
 {};
 
 int Model::LoadModel(const char* filename)
@@ -104,6 +110,7 @@ void Model::ClearData(bool freeMemory) noexcept
 
 void Model::LoadGlData()
 {
+	// Load all GL buffers, include textures buffers
 
 	/* Work with vertex buffer array */
 	glGenVertexArrays(1, &vertexArrayBuffer);
@@ -112,6 +119,9 @@ void Model::LoadGlData()
 	glEnableVertexAttribArray(static_cast<GLint>(Graphic::VertexAtrib::VertexCoors));
 	glEnableVertexAttribArray(static_cast<GLint>(Graphic::VertexAtrib::Normals));
 	glEnableVertexAttribArray(static_cast<GLint>(Graphic::VertexAtrib::TextureCoord));
+
+	if (verticesBuffer || normalsBuffer || texturecoordsBuffer)
+		ClearGLBuffers();
 
 	/* Work with vertex buffer array */
 	glGenBuffers(1, &verticesBuffer);
@@ -130,8 +140,6 @@ void Model::LoadGlData()
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indicesBuffer);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
 
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indicesBuffer);
-
 	glBindBuffer(GL_ARRAY_BUFFER, verticesBuffer);
 	glVertexAttribPointer(static_cast<GLint>(Graphic::VertexAtrib::VertexCoors), 3, GL_FLOAT, GL_FALSE, 0, NULL);
 
@@ -143,6 +151,7 @@ void Model::LoadGlData()
 
 	glBindVertexArray(0);
 
+	material.LoadTexuresGLBuffers(*this);
 }
 
 void Model::Draw(const Resources& resources)

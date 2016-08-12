@@ -8,6 +8,9 @@
 
 #include "ShaderProgram.h"
 
+// For preventing cycling dependency
+class Model;
+
 class Texture
 {
 public:
@@ -37,6 +40,8 @@ public:
 	
  	virtual int GetSamplerUniformLocation(const ShaderProgram& shaderProgram) const = 0; 
 	virtual void LoadUniforms(const ShaderProgram& shaderProgram) const {};
+	virtual void LoadGLBuffers(const Model& model) {};
+	virtual void CleanGLBuffers() noexcept {};
 	virtual int ActivateGLTextureSlot() const;
 	void Load(std::string&& filePath, const ShaderProgram& shaderProgram);
 

@@ -56,6 +56,13 @@ void Material::PassToShader(const ShaderProgram& shaderProgram) const
 	else
 		glUniform1i(uniformLoc, mixTextures.size());
 
+	uniformLoc = glGetUniformLocation(shaderProgram.id, "materialVertex.hasNormalTexture");
+	if (-1 == uniformLoc)
+		std::cout << "Failed to get material uniform \n";
+	else
+		glUniform1i(uniformLoc, static_cast<int>(HasTextureWithType(Texture::Type::Normal)));
+
+
 	LoadStandartTexturesUniforms(shaderProgram);
 	LoadMixTextureUniforms(shaderProgram);
 }
@@ -108,5 +115,14 @@ void Material::LoadStandartTexturesUniforms(const ShaderProgram& shaderProgram) 
 	for (auto it = textures.begin(); it != textures.end(); ++it)
 	{
 		it->second->LoadUniforms(shaderProgram);
+	}
+}
+
+void Material::LoadTexuresGLBuffers(const Model& model)
+{
+	// Here we works only with standart textures
+	for (auto texture : textures)
+	{
+		texture.second->LoadGLBuffers(model);
 	}
 }

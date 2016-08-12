@@ -147,18 +147,8 @@ void Graphic::Renderer::Draw(float angle)
 	for (unsigned i = 0; i < models.size(); ++i)
 	{
 		
-		switch (models[i].type)
-		{
-		case Model::Type::commonModel:
-			glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, 1, &modelSubroutine);
-			break;
-		case Model::Type::lightModel:
-			glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, 1, &lightSubroutine);
-			break;
-		default:
-			break;
-		}
-		
+		ActivateAppropriteToModelSubroutines(models[i]);
+
 		models[i].slopeAngle.y = angle;
 		models[i].CalculateTransformMat();
 		SetTransMatrix(models[i].transformMat);
@@ -179,8 +169,17 @@ int Graphic::Renderer::InitUniforms()
 	transMatLoc = glGetUniformLocation(shaderProgram.id, "trans");
 	modelSubroutine = glGetSubroutineIndex(shaderProgram.id, GL_FRAGMENT_SHADER, "PhongLight");
 	lightSubroutine = glGetSubroutineIndex(shaderProgram.id, GL_FRAGMENT_SHADER, "LighSourceLight");
+	normalTextureSubroutines[0] = glGetSubroutineIndex(shaderProgram.id, GL_FRAGMENT_SHADER, "TransformToObjectLocal");
+	normalTextureSubroutines[1] = glGetSubroutineIndex(shaderProgram.id, GL_FRAGMENT_SHADER, "GetNormalFromTexture");
+	noNormalTextureSubroutines[0] = glGetSubroutineIndex(shaderProgram.id, GL_FRAGMENT_SHADER, "NotTransformToObjectLocal");
+	noNormalTextureSubroutines[1] = glGetSubroutineIndex(shaderProgram.id, GL_FRAGMENT_SHADER, "GetOriginalNormal");
 
-	if (GL_INVALID_INDEX == modelSubroutine || GL_INVALID_INDEX == lightSubroutine)
+	if (   GL_INVALID_INDEX == modelSubroutine
+		|| GL_INVALID_INDEX == lightSubroutine
+		|| GL_INVALID_INDEX == normalTextureSubroutines[0]
+		|| GL_INVALID_INDEX == normalTextureSubroutines[1]
+		|| GL_INVALID_INDEX == noNormalTextureSubroutines[0]
+		|| GL_INVALID_INDEX == noNormalTextureSubroutines[1])
 		std::cout << "Failed to get graphic subroutine index. \n ";
 
 	if (-1 == transMatLoc)
@@ -241,4 +240,51 @@ void Graphic::Renderer::LoadLightDataToOpenGL() const
 
 	GLuint lightNumberLoc = glGetUniformLocation(shaderProgram.id, "lightSourcesNumber");
 	glUniform1i(lightNumberLoc, lights.size());
+}
+
+void Graphic::Renderer::ActivateAppropriteToModelSubroutines(const Model& model) const
+{
+	constexpr unsigned numOfUsedSubroutines = 3;
+	GLuint subroutinesArray[numOfUsedSubroutines];
+
+	const GLint shadeSubUniformLoc = glGetSubroutineUniformLocation(shaderProgram.id, GL_FRAGMENT_SHADER, "shadeModel");
+	const GLint toObjectLocalCoordSubUniformLoc = glGetSubroutineUniformLocation(shaderProgram.id, GL_FRAGMENT_SHADER, "toObjectLocalCoord");
+	const GLint getNormalVecSubUniformLoc = glGetSubroutineUniformLocation(shaderProgram.id, GL_FRAGMENT_SHADER, "getNormalVec");
+
+	assert(shadeSubUniformLoc < numOfUsedSubroutines
+		&& toObjectLocalCoordSubUniformLoc < numOfUsedSubroutines
+		&& getNormalVecSubUniformLoc < numOfUsedSubroutines);
+
+	if (   -1 == shadeSubUniformLoc
+		|| -1 == toObjectLocalCoordSubUniformLoc
+		|| -1 == getNormalVecSubUniformLoc)
+	{
+		std::cout << "Failed to get subroutines uniform location. \n";
+		return;
+	}
+
+	switch (model.type)
+	{
+	case Model::Type::commonModel:
+		subroutinesArray[shadeSubUniformLoc] = modelSubroutine;
+		break;
+	case Model::Type::lightModel:
+		subroutinesArray[shadeSubUniformLoc] = lightSubroutine;
+		break;
+	default:
+		break;
+	}
+
+	if (model.material.HasTextureWithType(Texture::Type::Normal))
+	{
+		subroutinesArray[toObjectLocalCoordSubUniformLoc] = normalTextureSubroutines[0];
+		subroutinesArray[getNormalVecSubUniformLoc] = normalTextureSubroutines[1];
+	}
+	else
+	{
+		subroutinesArray[toObjectLocalCoordSubUniformLoc] = noNormalTextureSubroutines[0];
+		subroutinesArray[getNormalVecSubUniformLoc] = noNormalTextureSubroutines[1];
+	}
+
+	glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, 3, subroutinesArray);
 }

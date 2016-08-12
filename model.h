@@ -34,7 +34,10 @@ public:
 		GLuint buffers[] = { verticesBuffer, normalsBuffer, indicesBuffer, texturecoordsBuffer };
 		glDeleteVertexArrays(1, &vertexArrayBuffer);
 		glDeleteBuffers(4, buffers);
-		verticesBuffer = normalsBuffer = indicesBuffer = texturecoordsBuffer = -1;
+		Texture* normalTexture = material.GetTextureWithType(Texture::Type::Normal);
+		if (normalTexture)
+			normalTexture->CleanGLBuffers();
+		verticesBuffer = normalsBuffer = indicesBuffer = texturecoordsBuffer = vertexArrayBuffer = 0;
 	};
 	void Draw(const Resources& resources);
 	glm::mat4 CalculateTransformMat();

@@ -65,7 +65,11 @@
 	//======= UNIFORM DATA START ========
 
 	subroutine vec3 shadeModelType (LightSource lightSources[lightMaxNumber], vec4 position, vec3 normal);
+	subroutine vec3 toObjectLocalCoordType (vec3 vec);
+	subroutine vec3 getNormalVecType(vec3 originalNormal);
 	subroutine uniform shadeModelType shadeModel;
+	subroutine uniform toObjectLocalCoordType toObjectLocalCoord;
+	subroutine uniform getNormalVecType getNormalVec;
 	
 	layout (location=0) out vec4 FragColor;
 
@@ -79,16 +83,18 @@
 	in vec4 position;
     in vec3 normal;
 	in vec2 textureCoord;
+	in mat3 toObjectLocal;
 
 	//======== UNIFORM DATA END ========
 
 	// ====== LIGHTS START ======
 	vec3 PointLight (LightSource lightSource, vec4 position, vec3 normal, out vec3 spec)
 	{
-		vec3 s = normalize(vec3(lightSource.position - position));
-		vec3 v = normalize(-position.xyz);
+		vec3 s = normalize(toObjectLocalCoord(vec3(lightSource.position - position)));
+		vec3 v = normalize(toObjectLocalCoord(-position.xyz));
 		vec3 r = reflect(-s, normal);
-        // Half path vector optimization
+	
+		// Half path vector optimization
         //vec3 h = normalize(v + s);
 		vec3 ambient = lightSource.intensityAmbient * material.Ka;
 		float sDotN = max( dot(s, normal), 0.0);
@@ -104,7 +110,7 @@
 
 	vec3 DirectionLight (LightSource lightSource, vec4 position, vec3 normal, out vec3 spec)
 	{
-		vec3 s = normalize(lightSource.direction);
+		vec3 s = normalize(toObjectLocalCoord(lightSource.direction));
 		// Half path vector optimization
 		//vec3 h = normalize(v + s);
 		vec3 ambient = lightSource.intensityAmbient * material.Ka;
@@ -113,7 +119,7 @@
 		spec = vec3(0.0);
 		if (sDotN > 0.0)
 		{
-			vec3 v = normalize(-position.xyz);
+			vec3 v = normalize(toObjectLocalCoord(-position.xyz));
 			vec3 r = reflect(-s, normal);
 			diffuse = lightSource.intensityDiffuse * material.Kd * sDotN;
 			spec = lightSource.intensitySpecular * material.Ks * pow(max(dot(r,v) ,0.0), lightSource.shiness);
@@ -123,7 +129,7 @@
 	
 	vec3 ConeLight(LightSource lightSource, vec4 position, vec3 normal, out vec3 spec)
 	{
-		vec3 s = normalize(vec3(lightSource.position - position));
+		vec3 s = normalize(toObjectLocalCoord(vec3(lightSource.position - position)));
 		float angle = acos(dot(-s, lightSource.direction));
 		float cutoff = radians( clamp(lightSource.coneAngle, 0.0, 90.0));
 		vec3 ambient = lightSource.intensityAmbient * material.Ka;
@@ -133,7 +139,7 @@
 			//vec3 h = normalize(v + s);
 			float sDotN = max( dot(s, normal), 0.0);
 			float spotFactor = pow( dot(-s, lightSource.direction), lightSource.coneShiness);
-			vec3 v = normalize(-position.xyz);
+			vec3 v = normalize(toObjectLocalCoord(-position.xyz));
 			vec3 r = reflect(-s, normal);
 			vec3 diffuse = lightSource.intensityDiffuse * material.Kd * sDotN;
 			spec = lightSource.intensitySpecular * material.Ks * pow(max(dot(r,v) ,0.0), lightSource.shiness);
@@ -213,12 +219,16 @@
 		return texColor;
 	}
 	// ======== TEXTURES END =========
+
+	// ======== SUBROUTINES START =========
+
 	subroutine ( shadeModelType )
 	vec3 PhongLight(LightSource lightSources[lightMaxNumber], vec4 position, vec3 normal)
 	{
 		vec3 lightIntensity = vec3(0.0);
 		vec3 specComp = vec3(0.0);
 		vec3 spec = vec3(0.0);
+		vec3 normalVec = getNormalVec(normal);
 		for (int i=0; i < lightSourcesNumber; ++i)
 		{
 			switch(lightSources[i].type)
@@ -227,15 +237,15 @@
                lightIntensity += vec3(0.0, 0.0, 0.0);
 			   break;
             case 1:
-               lightIntensity += PointLight(lightSources[i], position, normal, spec);
+               lightIntensity += PointLight(lightSources[i], position, normalVec, spec);
 			   specComp += spec;
 			   break;
             case 2:
-			   lightIntensity += DirectionLight(lightSources[i], position, normal, spec);
+			   lightIntensity += DirectionLight(lightSources[i], position, normalVec, spec);
 			   specComp += spec;
 			   break;
 			case 3:
-			   lightIntensity += ConeLight(lightSources[i], position, normal, spec);
+			   lightIntensity += ConeLight(lightSources[i], position, normalVec, spec);
 			   specComp += spec;
 			   break;
 			}
@@ -245,12 +255,41 @@
 		lightIntensity = UseEffects(lightIntensity, position) + specComp;
 		return lightIntensity;
 	}
-	
+
 	subroutine (shadeModelType)
 	vec3 LighSourceLight(LightSource lightSources[lightMaxNumber], vec4 position, vec3 normal)
 	{
 		return vec3(0.2, 1.0, 0.2);
 	}
+
+	// This subroutine is for transformation to local object coordinate system
+	subroutine (toObjectLocalCoordType)
+	vec3 TransformToObjectLocal(vec3 vec)
+	{
+		return toObjectLocal * vec;
+	}
+
+	subroutine (toObjectLocalCoordType)
+	vec3 NotTransformToObjectLocal(vec3 vec)
+	{
+		return vec;
+	}
+
+	// This subroutine if for getting right normal vector. From texture or not
+	subroutine (getNormalVecType)
+	vec3 GetNormalFromTexture(vec3 originalNormal)
+	{
+		vec4 texNormal = 2.0 * texture( material.normalTexture, textureCoord ) - 1.0;
+		return normalize(texNormal.xyz);
+	}
+
+	subroutine (getNormalVecType)
+	vec3 GetOriginalNormal(vec3 originalNormal)
+	{	
+		return originalNormal;
+	}
+
+	// ======== SUBROUTINES END =========
 
 	void main()
 	{	

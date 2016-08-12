@@ -12,6 +12,9 @@
 #include "ShaderProgram.h"
 #include "Settings.h"
 
+// For preventing cycling dependency
+class Model;
+
 class Material
 {
 public:
@@ -38,6 +41,7 @@ public:
 
 	void PassToShader(const ShaderProgram& shaderProgram) const;
 	void BindTextures();
+	void LoadTexuresGLBuffers(const Model& model);
 	bool HasTextureWithType(Texture::Type t) const noexcept { return textures.find(t) != textures.end(); };
 	void ClearMixTextureVec() noexcept
 	{
