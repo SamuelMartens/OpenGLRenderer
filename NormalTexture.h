@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <string>
 
 #include "glm\vec3.hpp"
 #include "gl_core_4_3.h"
@@ -15,15 +16,7 @@ public:
 	NormalTexture() :
 		  Texture(Texture::Type::Normal)
 		, tangentsBuffer(0)
-	{};
-	explicit NormalTexture(std::vector<float>& tangentsVal) :
-		  Texture(Texture::Type::Normal)
-		, tangents(tangentsVal)
-		, tangentsBuffer(0)
-	{};
-	explicit NormalTexture(std::vector<float>&& tangensVal) :
-		Texture(Texture::Type::Normal)
-		, tangents(tangensVal)
+		, bitangentsBuffer(0)
 	{};
 
 	NormalTexture(const NormalTexture&) = default;
@@ -33,11 +26,11 @@ public:
 	/* Getters */
 	const std::vector<float>& GetTangens() const noexcept { return tangents; };
 	GLuint GetTangentsBuffer() const noexcept { return tangentsBuffer; };
-
+	GLuint GetBitangentsBuffer() const noexcept { return bitangentsBuffer; };
+	
 	/* Setters */
-	void SetTangens(const std::vector<float>& tangentsVal) noexcept { tangents = tangentsVal; };
 
-	void CalculateTangens(const Model& model);
+	void CalculateTangAndBitang(const Model& model);
 	void CleanGLBuffers() noexcept override
 	{
 		if (tangentsBuffer)
@@ -45,18 +38,26 @@ public:
 			glDeleteBuffers(1, &tangentsBuffer);
 			tangentsBuffer = 0;
 		}
+		if (bitangentsBuffer)
+		{
+			glDeleteBuffers(1, &bitangentsBuffer);
+			bitangentsBuffer = 0;
+		}
 	}
-	void LoadTangensInGLModelBuffer(const Model& model);
+	void LoadGLModelBuffer(const Model& model);
 	virtual int GetSamplerUniformLocation(const ShaderProgram& shaderProgram) const override;
 	virtual void LoadGLBuffers(const Model& model) override
 	{
-		CalculateTangens(model);
-		LoadTangensInGLModelBuffer(model);
+		CalculateTangAndBitang(model);
+		LoadGLModelBuffer(model);
 	};
 
 
 private:
 	std::vector<float> tangents;
+	std::vector<float> bitangets;
+
 	GLuint tangentsBuffer;
+	GLuint bitangentsBuffer;
 };
 

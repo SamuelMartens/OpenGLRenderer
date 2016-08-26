@@ -15,12 +15,18 @@ void Texture::Load(std::string&& filePath, const ShaderProgram& shaderProgram)
 	unsigned char* image = stbi_load(filePath.c_str(), &w, &h, &comp, 0);
 	
 	if (nullptr == image)
-		std::cout << "Failed to load image for texture";
-
-	int slotNum = ActivateGLTextureSlot();
+	{
+		std::cout << "Failed to load image for texture. \n";
+		return;
+	}
+		
+	const int slotNum = ActivateGLTextureSlot();
 	glGenTextures(1, &id);
 	if (GL_INVALID_VALUE == id)
-		std::cout << "Failed to generate texture";
+	{
+		std::cout << "Failed to generate texture. \n";
+		return;
+	}
 
 	glBindTexture(GL_TEXTURE_2D, id);
 	switch (comp)
@@ -34,7 +40,7 @@ void Texture::Load(std::string&& filePath, const ShaderProgram& shaderProgram)
 		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, image);
 		break;
 	default:
-		std::cout << "Undefined texture comp variable \n";
+		std::cout << "Undefined texture comp variable. \n";
 		break;
 	}
 	

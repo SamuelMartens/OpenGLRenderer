@@ -86,13 +86,32 @@
 	in mat3 toObjectLocal;
 
 	//======== UNIFORM DATA END ========
+	
+	// ======== SUBROUTINES START =========
+
+	
+	// This subroutine is for transformation to local object coordinate system
+	subroutine (toObjectLocalCoordType)
+	vec3 TransformToObjectLocal(vec3 vec)
+	{
+		return vec * toObjectLocal;
+	}
+
+	subroutine (toObjectLocalCoordType)
+	vec3 NotTransformToObjectLocal(vec3 vec)
+	{
+		return vec;
+	}
+	// ======== SUBROUTINES END =========
 
 	// ====== LIGHTS START ======
 	vec3 PointLight (LightSource lightSource, vec4 position, vec3 normal, out vec3 spec)
 	{
 		vec3 s = normalize(toObjectLocalCoord(vec3(lightSource.position - position)));
 		vec3 v = normalize(toObjectLocalCoord(-position.xyz));
-		vec3 r = reflect(-s, normal);
+		// DEBUG swap
+		//vec3 r = reflect(-s, normal);
+		vec3 r = reflect( -s, normal);
 	
 		// Half path vector optimization
         //vec3 h = normalize(v + s);
@@ -105,6 +124,9 @@
 			diffuse = lightSource.intensityDiffuse * material.Kd * sDotN;
 			spec = lightSource.intensitySpecular * material.Ks * pow(max(dot(r,v) ,0.0), lightSource.shiness);
 		}
+		// DEBUG 
+		//spec = vec3(0.0);
+		// END
 		return ambient + diffuse;
 	}
 
@@ -222,6 +244,7 @@
 
 	// ======== SUBROUTINES START =========
 
+
 	subroutine ( shadeModelType )
 	vec3 PhongLight(LightSource lightSources[lightMaxNumber], vec4 position, vec3 normal)
 	{
@@ -260,19 +283,6 @@
 	vec3 LighSourceLight(LightSource lightSources[lightMaxNumber], vec4 position, vec3 normal)
 	{
 		return vec3(0.2, 1.0, 0.2);
-	}
-
-	// This subroutine is for transformation to local object coordinate system
-	subroutine (toObjectLocalCoordType)
-	vec3 TransformToObjectLocal(vec3 vec)
-	{
-		return toObjectLocal * vec;
-	}
-
-	subroutine (toObjectLocalCoordType)
-	vec3 NotTransformToObjectLocal(vec3 vec)
-	{
-		return vec;
 	}
 
 	// This subroutine if for getting right normal vector. From texture or not

@@ -1,7 +1,7 @@
 #pragma once
 
-
 #include <string>
+#include <vector>
 #include <cassert>
 
 #include "gl_core_4_3.h"
@@ -20,7 +20,8 @@ public:
 		Diffuse = 0,
 		Normal = 1,
 		Transparent = 2,
-		MixTexture = 3
+		Cube = 3,
+		MixTexture = 4
 	};
 
 	virtual ~Texture() {};
@@ -30,7 +31,7 @@ public:
 	bool isInitialized() const noexcept { return initialized; };
 	Texture::Type GetType() { return type; };
 
-	void Bind() const 
+	virtual void Bind() const 
 	{
 		assert(initialized);
 		ActivateGLTextureSlot();
@@ -43,7 +44,8 @@ public:
 	virtual void LoadGLBuffers(const Model& model) {};
 	virtual void CleanGLBuffers() noexcept {};
 	virtual int ActivateGLTextureSlot() const;
-	void Load(std::string&& filePath, const ShaderProgram& shaderProgram);
+	virtual void Load(std::string&& filePath, const ShaderProgram& shaderProgram);
+	virtual void LoadFewTextures(std::vector<std::string>&& filesPathes, const ShaderProgram& shaderProgram) {};
 
 	void ClearGLData() noexcept
 	{
@@ -62,6 +64,5 @@ protected:
 	Type type;
 	GLuint id;
 	bool initialized;
-	float mixWeight;
 };
 

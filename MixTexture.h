@@ -50,4 +50,5 @@ public:
 private:
 	float mixWeight;
 	int indexNumber;
+
 };

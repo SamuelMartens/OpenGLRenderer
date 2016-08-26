@@ -7,6 +7,9 @@
 #include "gl_core_4_3.h"
 
 #include "Resources.h"
+#include "CubeTexture.h"
+
+// 
 
 struct Settings
 {
@@ -36,7 +39,9 @@ struct Settings
 	Resources resources;
 
 	Settings(const Settings&) = delete;
+	Settings(const Settings&&) = delete;
 	void operator=(const Settings&) = delete;
+	void operator=(const Settings&&) = delete;
 	~Settings() = default;
 
 private:

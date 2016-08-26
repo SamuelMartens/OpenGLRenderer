@@ -18,7 +18,8 @@ public:
 	enum class Type
 	{
 		commonModel,
-		lightModel
+		lightModel,
+		skyBoxModel
 	};
 
 	Model();

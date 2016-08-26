@@ -12,6 +12,7 @@
 #include <string>
 #include <cassert>
 #include <memory>
+#include <map>
 
 void Graphic::InitFigure(std::vector<float>& vertices, std::vector<float>& colors)
 {
@@ -121,17 +122,18 @@ void Graphic::InitFigure(std::vector<float>& vertices, std::vector<float>& color
 
 Graphic::Renderer::Renderer() :
 	  transMatLoc(-1)
+	, skyBox(nullptr)
 {};
 
 int Graphic::Renderer::Init() 
 {
-	if (!shaderProgram.isLinked())
+	if (!GetShaderProgramWithType(ShaderProgram::Type::Main)->isLinked())
 	{
 		std::cout<<"Shader program is not linked. Failed to init renderer \n";
 		return 1;
 	}
-	Settings::Instance().resources.Init(shaderProgram);
-	Settings::Instance().PassToShaderProgram(shaderProgram);
+	Settings::Instance().resources.Init(*GetShaderProgramWithType(ShaderProgram::Type::Main));
+	Settings::Instance().PassToShaderProgram(*GetShaderProgramWithType(ShaderProgram::Type::Main));
 	
 	if (InitUniforms() != 0)
 		std::cout << "Failed to load uniforms \n";
@@ -152,27 +154,21 @@ void Graphic::Renderer::Draw(float angle)
 		models[i].slopeAngle.y = angle;
 		models[i].CalculateTransformMat();
 		SetTransMatrix(models[i].transformMat);
-		models[i].LoadModelUniforms(shaderProgram);
+		models[i].LoadModelUniforms(*GetShaderProgramWithType(ShaderProgram::Type::Main));
 		models[i].Draw(Settings::Instance().resources);
 		
 	}
 }
 
-
-void Graphic::Renderer::Reload(float angle)
-{
-
-}
-
 int Graphic::Renderer::InitUniforms()
 {
-	transMatLoc = glGetUniformLocation(shaderProgram.id, "trans");
-	modelSubroutine = glGetSubroutineIndex(shaderProgram.id, GL_FRAGMENT_SHADER, "PhongLight");
-	lightSubroutine = glGetSubroutineIndex(shaderProgram.id, GL_FRAGMENT_SHADER, "LighSourceLight");
-	normalTextureSubroutines[0] = glGetSubroutineIndex(shaderProgram.id, GL_FRAGMENT_SHADER, "TransformToObjectLocal");
-	normalTextureSubroutines[1] = glGetSubroutineIndex(shaderProgram.id, GL_FRAGMENT_SHADER, "GetNormalFromTexture");
-	noNormalTextureSubroutines[0] = glGetSubroutineIndex(shaderProgram.id, GL_FRAGMENT_SHADER, "NotTransformToObjectLocal");
-	noNormalTextureSubroutines[1] = glGetSubroutineIndex(shaderProgram.id, GL_FRAGMENT_SHADER, "GetOriginalNormal");
+	transMatLoc = glGetUniformLocation(GetShaderProgramWithType(ShaderProgram::Type::Main)->id, "trans");
+	modelSubroutine = glGetSubroutineIndex(GetShaderProgramWithType(ShaderProgram::Type::Main)->id, GL_FRAGMENT_SHADER, "PhongLight");
+	lightSubroutine = glGetSubroutineIndex(GetShaderProgramWithType(ShaderProgram::Type::Main)->id, GL_FRAGMENT_SHADER, "LighSourceLight");
+	normalTextureSubroutines[0] = glGetSubroutineIndex(GetShaderProgramWithType(ShaderProgram::Type::Main)->id, GL_FRAGMENT_SHADER, "TransformToObjectLocal");
+	normalTextureSubroutines[1] = glGetSubroutineIndex(GetShaderProgramWithType(ShaderProgram::Type::Main)->id, GL_FRAGMENT_SHADER, "GetNormalFromTexture");
+	noNormalTextureSubroutines[0] = glGetSubroutineIndex(GetShaderProgramWithType(ShaderProgram::Type::Main)->id, GL_FRAGMENT_SHADER, "NotTransformToObjectLocal");
+	noNormalTextureSubroutines[1] = glGetSubroutineIndex(GetShaderProgramWithType(ShaderProgram::Type::Main)->id, GL_FRAGMENT_SHADER, "GetOriginalNormal");
 
 	if (   GL_INVALID_INDEX == modelSubroutine
 		|| GL_INVALID_INDEX == lightSubroutine
@@ -236,9 +232,9 @@ void Graphic::Renderer::LoadLightDataToOpenGL() const
 {
 	assert(lights.size() <= Settings::Instance().GetMaxLightNumber());
 	for (unsigned i = 0; i < lights.size(); ++i)
-		lights[i].PassToShaderProgram(shaderProgram.id, i);
+		lights[i].PassToShaderProgram(GetShaderProgramWithType(ShaderProgram::Type::Main)->id, i);
 
-	GLuint lightNumberLoc = glGetUniformLocation(shaderProgram.id, "lightSourcesNumber");
+	GLuint lightNumberLoc = glGetUniformLocation(GetShaderProgramWithType(ShaderProgram::Type::Main)->id, "lightSourcesNumber");
 	glUniform1i(lightNumberLoc, lights.size());
 }
 
@@ -247,9 +243,9 @@ void Graphic::Renderer::ActivateAppropriteToModelSubroutines(const Model& model)
 	constexpr unsigned numOfUsedSubroutines = 3;
 	GLuint subroutinesArray[numOfUsedSubroutines];
 
-	const GLint shadeSubUniformLoc = glGetSubroutineUniformLocation(shaderProgram.id, GL_FRAGMENT_SHADER, "shadeModel");
-	const GLint toObjectLocalCoordSubUniformLoc = glGetSubroutineUniformLocation(shaderProgram.id, GL_FRAGMENT_SHADER, "toObjectLocalCoord");
-	const GLint getNormalVecSubUniformLoc = glGetSubroutineUniformLocation(shaderProgram.id, GL_FRAGMENT_SHADER, "getNormalVec");
+	const GLint shadeSubUniformLoc = glGetSubroutineUniformLocation(GetShaderProgramWithType(ShaderProgram::Type::Main)->id, GL_FRAGMENT_SHADER, "shadeModel");
+	const GLint toObjectLocalCoordSubUniformLoc = glGetSubroutineUniformLocation(GetShaderProgramWithType(ShaderProgram::Type::Main)->id, GL_FRAGMENT_SHADER, "toObjectLocalCoord");
+	const GLint getNormalVecSubUniformLoc = glGetSubroutineUniformLocation(GetShaderProgramWithType(ShaderProgram::Type::Main)->id, GL_FRAGMENT_SHADER, "getNormalVec");
 
 	assert(shadeSubUniformLoc < numOfUsedSubroutines
 		&& toObjectLocalCoordSubUniformLoc < numOfUsedSubroutines
@@ -287,4 +283,16 @@ void Graphic::Renderer::ActivateAppropriteToModelSubroutines(const Model& model)
 	}
 
 	glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, 3, subroutinesArray);
+}
+
+void Graphic::Renderer::AddShaderProgram(ShaderProgram* newShaderProgram)
+{
+	assert(newShaderProgram);
+	auto res = shaderPrograms.insert({ newShaderProgram->GetType(), newShaderProgram });
+
+	if (res.second)
+		return;
+
+	delete res.first->second;
+	res.first->second = newShaderProgram;
 }

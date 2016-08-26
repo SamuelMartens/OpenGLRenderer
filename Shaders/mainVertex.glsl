@@ -3,6 +3,7 @@
 	layout (location=1) in vec3 VertexNormal;
 	layout (location=2) in vec2 TextureCoord;
 	layout (location=3) in vec3 VertexTangent;
+	layout (location=4) in vec3 VertexBitangent;
 
 	struct MaterialVertex
 	{
@@ -30,7 +31,7 @@
 		if (bool(materialVertex.hasNormalTexture))
 		{
 			tangent = normalize((trans * vec4(VertexTangent, 0.0)).xyz);
-			bitangent = normalize(cross(normal, tangent));
+			bitangent = normalize((trans * vec4(VertexBitangent, 0.0)).xyz);
 
 			toObjectLocal = mat3(
 			tangent.x, bitangent.x, normal.x,

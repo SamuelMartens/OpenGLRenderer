@@ -20,9 +20,9 @@ namespace
 
 	inline void ReverseTextureCoord(std::vector<float>& texcoord)
 	{
-		for (auto& coord: texcoord)
+		for (unsigned i = 0; i < texcoord.size(); i+=2)
 		{
-			coord = std::fabs(1 - coord);
+			texcoord[i+1] = std::ceil(texcoord[i+1]) - texcoord[i+1];
 		}
 	}
 

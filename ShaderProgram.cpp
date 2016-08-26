@@ -44,9 +44,10 @@ void ShaderProgram::Link()
 	return;
 }
 
-ShaderProgram::ShaderProgram(Shader& vs, Shader& fs):
+ShaderProgram::ShaderProgram(Shader& vs, Shader& fs, ShaderProgram::Type t):
 	  vertexShader(vs)
 	, fragmentShader(fs)
+	, type(t)
 {
 	assert(Shader::Type::Vertex == vertexShader.type && Shader::Type::Fragment == fragmentShader.type);
 	assert(vertexShader.isCompiled() && fragmentShader.isCompiled());
@@ -58,9 +59,10 @@ ShaderProgram::ShaderProgram(Shader& vs, Shader& fs):
 	Link();
 }
 
-ShaderProgram::ShaderProgram(Shader&& vs, Shader&& fs) :
-	vertexShader(vs)
+ShaderProgram::ShaderProgram(Shader&& vs, Shader&& fs, ShaderProgram::Type t) :
+	  vertexShader(vs)
 	, fragmentShader(fs)
+	, type(t)
 {
 	assert(Shader::Type::Vertex == vertexShader.type && Shader::Type::Fragment == fragmentShader.type);
 	assert(vertexShader.isCompiled() && fragmentShader.isCompiled());

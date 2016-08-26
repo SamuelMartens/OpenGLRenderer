@@ -9,15 +9,23 @@
 class ShaderProgram
 {
 public:
-	ShaderProgram():
-		linked(false)
+
+	enum class Type
+	{
+		Main,
+		SkyBox
+	};
+
+	explicit ShaderProgram(Type t):
+		  type(t)
+		, linked(false)
 	{
 		id  = glCreateProgram();
 		if (0 == id)
 			std::cout<<"Failed to create shader program \n";
 	};
-	ShaderProgram(Shader& vs, Shader& fs );
-	ShaderProgram(Shader&& vs, Shader&& fs);
+	ShaderProgram(Shader& vs, Shader& fs , Type t);
+	ShaderProgram(Shader&& vs, Shader&& fs, Type t);
 	
 	~ShaderProgram()
 	{
@@ -25,8 +33,11 @@ public:
 		glDeleteShader(vertexShader.id);
 		glDeleteProgram(id);
 	};
-	bool isLinked() const noexcept { return linked; }; 
 	void Link();
+
+	/* Getters */
+	bool isLinked() const noexcept { return linked; };
+	Type GetType() const noexcept { return type; };
 	
 	GLuint id;
 	Shader fragmentShader;
@@ -34,4 +45,5 @@ public:
 
 private:
 	bool linked;
+	Type type;
 };
