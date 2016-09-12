@@ -5,7 +5,7 @@
 
 #include <cmath>
 
-glm::mat4 ext_glm::rotateY(float angle)
+glm::mat4 ext_glm::rotateY(const float angle)
 {
 	float rotateMatrix[16] =
 	{
@@ -17,7 +17,7 @@ glm::mat4 ext_glm::rotateY(float angle)
 	return glm::make_mat4(rotateMatrix);
 }
 
-glm::mat4 ext_glm::rotateX(float angle)
+glm::mat4 ext_glm::rotateX(const float angle)
 {
 	float rotateMatrix[16] =
 	{
@@ -30,7 +30,20 @@ glm::mat4 ext_glm::rotateX(float angle)
 	return glm::make_mat4(rotateMatrix);
 }
 
-glm::mat4 ext_glm::move(float x, float y, float z)
+glm::mat4 ext_glm::rotateZ(const float angle)
+{
+	float rotateMatrix[16] =
+	{
+		std::cos(angle), std::sin(angle), 0, 0,
+		-std::sin(angle), std::cos(angle), 0, 0,
+		0, 0, 1, 0,
+		0, 0, 0, 1
+	};
+
+	return glm::make_mat4(rotateMatrix);
+}
+
+glm::mat4 ext_glm::move(const float x, const float y, const float z)
 {
 	float moveMatrix[16] =
 	{
@@ -43,7 +56,20 @@ glm::mat4 ext_glm::move(float x, float y, float z)
 	return glm::make_mat4(moveMatrix);
 }
 
-glm::mat4 ext_glm::scale(float x, float y, float z)
+glm::mat4 ext_glm::move(const glm::vec3& moveVec)
+{
+	float moveMatrix[16] =
+	{
+		1,  0,  0,  0,
+		0,  1,  0,  0,
+		0,  0,  1,  0,
+		moveVec.x, moveVec.y, moveVec.z, 1
+	};
+
+	return glm::make_mat4(moveMatrix);
+}
+
+glm::mat4 ext_glm::scale(const float x, const float y, const float z)
 {
 	float scaleMatrix[16] =
 	{
@@ -56,7 +82,7 @@ glm::mat4 ext_glm::scale(float x, float y, float z)
 	return glm::make_mat4(scaleMatrix);
 }
 
-glm::mat4 ext_glm::scale(float n)
+glm::mat4 ext_glm::scale(const float n)
 {
 	float scaleMatrix[16] =
 	{

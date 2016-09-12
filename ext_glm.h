@@ -4,10 +4,19 @@
 
 namespace ext_glm
 {
-	glm::mat4 rotateY(float angle);
-	glm::mat4 rotateX(float angle);
-	glm::mat4 move(float x, float y=0, float z=0);
-	glm::mat4 scale(float x, float y, float z);
-	glm::mat4 scale(float n);
+	/* Rotation */
+	glm::mat4 rotateY(const float angle);
+	glm::mat4 rotateX(const float angle);
+	glm::mat4 rotateZ(const float angle);
+	// Do all angles rotate here
+	glm::mat4 rotateXYZ(const)
+
+	/* Translation */
+	glm::mat4 move(const float x, const float y = 0, const float z = 0);
+	glm::mat4 move(const glm::vec3& moveVec);
+	glm::mat4 scale(const float x, const float y, const float z);
+	glm::mat4 scale(const float n);
+
+	/* Matrices */
 	glm::mat4 IdentityMat() noexcept;
 }

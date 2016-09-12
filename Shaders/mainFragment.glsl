@@ -108,9 +108,9 @@
 	vec3 PointLight (LightSource lightSource, vec4 position, vec3 normal, out vec3 spec)
 	{
 		vec3 s = normalize(toObjectLocalCoord(vec3(lightSource.position - position)));
-		vec3 v = normalize(toObjectLocalCoord(-position.xyz));
 		// DEBUG swap
-		//vec3 r = reflect(-s, normal);
+		//vec3 v = normalize(toObjectLocalCoord(-position.xyz));
+		vec3 v = normalize(toObjectLocalCoord(vec3(0.0, 0.0, -1.0) - position.xyz));
 		vec3 r = reflect( -s, normal);
 	
 		// Half path vector optimization
@@ -124,9 +124,6 @@
 			diffuse = lightSource.intensityDiffuse * material.Kd * sDotN;
 			spec = lightSource.intensitySpecular * material.Ks * pow(max(dot(r,v) ,0.0), lightSource.shiness);
 		}
-		// DEBUG 
-		//spec = vec3(0.0);
-		// END
 		return ambient + diffuse;
 	}
 

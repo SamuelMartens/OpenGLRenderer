@@ -76,7 +76,7 @@ int main()
 	/* Add light */
 	Light l1, l2;
 	l1.SetDirection(glm::vec3(0, 0, 5));
-	l1.SetPosition(glm::vec4(0, 1, -1, 1));
+	l1.SetPosition(glm::vec4(0, 1, -1.0, 1));
 	l1.coneAngle = 50;
 	l1.coneShiness = 50;
 	l1.type = Light::LighType::PointLight;

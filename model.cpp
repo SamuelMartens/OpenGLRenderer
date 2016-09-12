@@ -167,7 +167,7 @@ void Model::Draw(const Resources& resources)
 
 glm::mat4 Model::CalculateTransformMat()
 {
-	glm::mat4 rotateMat = ext_glm::rotateY(slopeAngle.y) * ext_glm::rotateX(slopeAngle.x);
+	glm::mat4 rotateMat = ext_glm::rotateY(slopeAngle.y) * ext_glm::rotateX(slopeAngle.x) * ext_glm::rotateZ(slopeAngle.z);
 	transformMat = ext_glm::move(position.x, position.y, position.z) * rotateMat * ext_glm::scale(scale);
 
 	boundingBox[0] = transformMat * boundingBox[0];
