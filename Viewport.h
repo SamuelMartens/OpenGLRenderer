@@ -7,8 +7,8 @@ class Viewport
 {
 public:
 	Viewport() :
-		  near(0)
-		, far(0)
+		  vpNear(0)
+		, vpFar(0)
 		, aspect(0)
 		, fov(0)
 		, updated(false)
@@ -17,8 +17,8 @@ public:
 	};
 	Viewport(float newNear, float newFar, float newAspect, float newFow) :
 		  updated(false)
-		, near(newNear)
-		, far(newFar)
+		, vpNear(newNear)
+		, vpFar(newFar)
 		, aspect(newAspect)
 		, fov(newFow)
 	{
@@ -27,8 +27,8 @@ public:
 	~Viewport() = default ;
 
 	/* Gettert */
-	float GetNear() const noexcept { return near; };
-	float GetFar() const noexcept { return far; };
+	float GetNear() const noexcept { return vpNear; };
+	float GetFar() const noexcept { return vpFar; };
 	float GetAspect() const noexcept { return aspect; };
 	float GetFov() const noexcept { return fov; };
 	glm::mat4 GetProjectionMat() noexcept
@@ -40,8 +40,8 @@ public:
 	};
 
 	/* Setter */
-	void SetNear(float val) noexcept { near = val; updated = false; };
-	void SetFar(float val) noexcept { far = val; updated = false; };
+	void SetNear(float val) noexcept { vpNear = val; updated = false; };
+	void SetFar(float val) noexcept { vpFar = val; updated = false; };
 	void SetAspect(float val) noexcept { aspect = val; updated = false; };
 	void SetFov(float val) noexcept { fov = val; updated = false; };
 
@@ -56,8 +56,8 @@ private:
 		projectionMat[3][2] = projectionMat[2][3] = 1;
 	}
 
-	float near;
-	float far;
+	float vpNear;
+	float vpFar;
 	// Aspect ratio
 	float aspect;
 	// Field of view for Y axis

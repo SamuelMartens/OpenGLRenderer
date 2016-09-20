@@ -24,6 +24,7 @@ public:
 
 	Model();
 	Model(const Model& m) = default;
+	Model& operator=(const Model&) = default;
 	~Model() = default;
 
 	int LoadModel(const char* filename);
@@ -44,6 +45,17 @@ public:
 	glm::mat4 CalculateTransformMat();
 	void MoveToCenter();
 	
+
+	/* Getters */
+	const glm::mat4& GetModelMat() const noexcept { return transformMat; };
+	glm::mat4& GetModelMat()
+	{
+		// Here to avoid code duplication for const and non const getter.
+		// This code is madness but I trust Scott Meyer, as it is his advice :)
+		return const_cast<glm::mat4&>(
+			static_cast<const Model&>(*this).GetModelMat());
+	};
+
 	/* Data */
 	Type type;
 	std::vector<float> vertices;
@@ -60,9 +72,6 @@ public:
 	/* Materials data */
 	Material material;
 
-	/* Matrix */
-	glm::mat4 transformMat;
-
 	/* Buffers */
 	GLuint vertexArrayBuffer;
 	GLuint verticesBuffer;
@@ -71,6 +80,10 @@ public:
 	GLuint texturecoordsBuffer;
 
 private:
+
+	/* Matrix */
+	glm::mat4 transformMat;
+
 	void SetBoundingBox();
 	void ScaleToBoundingBox();
 

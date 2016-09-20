@@ -8,6 +8,8 @@
 #include "MixTexture.h"
 #include "TransparentTexture.h"
 #include "NormalTexture.h"
+#include "Camera.h"
+#include "Viewport.h"
 
 #include <GLFW/glfw3.h>
 #include <vector>
@@ -44,13 +46,23 @@ int main()
 
 	ShaderProgram shaderProgram(vertexShader, fragmentShader, ShaderProgram::Type::Main);
 
-	/* Create and init renderer */
-	Graphic::Renderer renderer;
+	/* Init renderer */
 	//renderer.AddShaderProgram(new ShaderProgram(vertexShader, fragmentShader, ShaderProgram::Type::Main));
-	renderer.AddShaderProgram(&shaderProgram);
+	Graphic::Renderer::Instance().AddShaderProgram(&shaderProgram);
 
-	if (0 != renderer.Init())
+	if (0 != Graphic::Renderer::Instance().Init())
 		std::cout << "Failed to init renderer";
+	/* Renderer camera and viewport settings */
+	Graphic::Renderer::Instance().SetCamera(std::make_unique<Camera>(
+		  glm::vec3(0, 0, -1)
+		, glm::vec3(0, 0, 1)
+		, std::make_unique<Viewport>()));
+
+	std::unique_ptr<Viewport>& rendererVp = Graphic::Renderer::Instance().GetCamera()->GetViewport();
+	rendererVp->SetNear(0);
+	rendererVp->SetFar(1000);
+	rendererVp->SetAspect(0.5);
+	rendererVp->SetFov(1.5);
 
 	/* Settings change */
 
@@ -60,18 +72,18 @@ int main()
 	Material material;
 	material.SetTexture(std::make_shared<DiffuseTexture>());
 	//material.GetTextureWithType(Texture::Type::Diffuse)->Load("E:\\C++\\OpenGLtutorial\\texture.jpg", *renderer.GetShaderProgramWithType(ShaderProgram::Type::Main));
-	material.GetTextureWithType(Texture::Type::Diffuse)->Load("E:\\C++\\OpenGLtutorial\\Stormtrooper\\Stormtrooper_D.tga", *renderer.GetShaderProgramWithType(ShaderProgram::Type::Main));
+	material.GetTextureWithType(Texture::Type::Diffuse)->Load("E:\\C++\\OpenGLtutorial\\Stormtrooper\\Stormtrooper_D.tga", *Graphic::Renderer::Instance().GetShaderProgramWithType(ShaderProgram::Type::Main));
 	//material.SetTexture(std::make_shared<TransparentTexture>(0.9));
 	//material.GetTextureWithType(Texture::Type::Transparent)->Load("E:\\C++\\OpenGLtutorial\\texture.jpg", shaderProgram);
 	material.SetTexture(std::make_shared<NormalTexture>());
 	//material.GetTextureWithType(Texture::Type::Normal)->Load("E:\\C++\\OpenGLtutorial\\texture.jpg", *renderer.GetShaderProgramWithType(ShaderProgram::Type::Main));
-	material.GetTextureWithType(Texture::Type::Normal)->Load("E:\\C++\\OpenGLtutorial\\Stormtrooper\\Stormtrooper_N.tga", *renderer.GetShaderProgramWithType(ShaderProgram::Type::Main));
+	material.GetTextureWithType(Texture::Type::Normal)->Load("E:\\C++\\OpenGLtutorial\\Stormtrooper\\Stormtrooper_N.tga", *Graphic::Renderer::Instance().GetShaderProgramWithType(ShaderProgram::Type::Main));
 	model.material = material;
 	model.LoadModel("E:\\C++\\OpenGLtutorial\\Stormtrooper\\Stormtrooper.obj");
 	//model.LoadModel("E:\\C++\\OpenGLtutorial\\resources\\sphere.obj");
 	//model.scale = 0.5;
 	//model.position = glm::vec4(0.5, 0.5, 0, 1);
-	renderer.AddModel(model);
+	Graphic::Renderer::Instance().AddModel(model);
 
 	/* Add light */
 	Light l1, l2;
@@ -80,7 +92,7 @@ int main()
 	l1.coneAngle = 50;
 	l1.coneShiness = 50;
 	l1.type = Light::LighType::PointLight;
-	renderer.AddLight(l1);
+	Graphic::Renderer::Instance().AddLight(l1);
 
 	float angleY = 0;
 
@@ -89,10 +101,10 @@ int main()
 	{
 
 		/* Clear screen */
-		renderer.ClearScreen();
+		Graphic::Renderer::Instance().ClearScreen();
 
 		/* Render here */
-		renderer.Draw(angleY);
+		Graphic::Renderer::Instance().Draw(angleY);
 
 		/* Change data here */
 		angleY += 0.002;

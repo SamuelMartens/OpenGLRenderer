@@ -14,116 +14,17 @@
 #include <memory>
 #include <map>
 
-void Graphic::InitFigure(std::vector<float>& vertices, std::vector<float>& colors)
-{
-	vertices = 
-	{
-		-0.5f, -0.5f, -0.5f,
-		-0.5f, -0.5f, 0.5f,
-		-0.5f, 0.5f, 0.5f,
-
-		0.5f, 0.5f, -0.5f,
-		-0.5f, -0.5f, -0.5f,
-		-0.5f, 0.5f, -0.5f,
-
-		0.5f, -0.5f, 0.5f,
-		-0.5f, -0.5f, -0.5f,
-		0.5f, -0.5f, -0.5f,
-
-		0.5f, 0.5f, -0.5f,
-		0.5f, -0.5f, -0.5f,
-		-0.5f, -0.5f, -0.5f,
-
-		-0.5f, -0.5f, -0.5f,
-		-0.5f, 0.5f, 0.5f,
-		-0.5f, 0.5f, -0.5f,
-
-		0.5f, -0.5f, 0.5f,
-		-0.5f, -0.5f, 0.5f,
-		-0.5f, -0.5f, -0.5f,
-
-		-0.5f, 0.5f, 0.5f,
-		-0.5f, -0.5f, 0.5f,
-		0.5f, -0.5f, 0.5f,
-
-		0.5f, 0.5f, 0.5f,
-		0.5f, -0.5f, -0.5f,
-		0.5f, 0.5f, -0.5f,
-
-		0.5f, -0.5f, -0.5f,
-		0.5f, 0.5f, 0.5f,
-		0.5f, -0.5f, 0.5f,
-
-		0.5f, 0.5f, 0.5f,
-		0.5f, 0.5f, -0.5f,
-		-0.5f, 0.5f, -0.5f,
-
-		0.5f, 0.5f, 0.5f,
-		-0.5f, 0.5f, -0.5f,
-		-0.5f, 0.5f, 0.5f,
-
-		0.5f, 0.5f, 0.5f,
-		-0.5f, 0.5f, 0.5f,
-		0.5f, -0.5f, 0.5f
-	};
-
-	colors =
-	{
-		0.0f, 1.0f, 1.0f,
-		0.0f, 1.0f, 1.0f,
-		0.0f, 1.0f, 1.0f,
-
-		1.0f, 1.0f, 0.0f,
-		1.0f, 1.0f, 0.0f,
-		1.0f, 1.0f, 0.0f,
-
-		1.0f, 0.0f, 1.0f,
-		1.0f, 0.0f, 1.0f,
-		1.0f, 0.0f, 1.0f,
-
-		1.0f, 1.0f, 0.0f,
-		1.0f, 1.0f, 0.0f,
-		1.0f, 1.0f, 0.0f,
-
-		0.0f, 1.0f, 1.0f,
-		0.0f, 1.0f, 1.0f,
-		0.0f, 1.0f, 1.0f,
-
-		1.0f, 0.0f, 1.0f,
-		1.0f, 0.0f, 1.0f,
-		1.0f, 0.0f, 1.0f,
-
-		0.0f, 0.0f, 1.0f,
-		0.0f, 0.0f, 1.0f,
-		0.0f, 0.0f, 1.0f,
-
-		1.0f, 0.0f, 0.0f,
-		1.0f, 0.0f, 0.0f,
-		1.0f, 0.0f, 0.0f,
-
-		1.0f, 0.0f, 0.0f,
-		1.0f, 0.0f, 0.0f,
-		1.0f, 0.0f, 0.0f,
-
-		0.0f, 1.1f, 0.0f,
-		0.0f, 1.1f, 0.0f,
-		0.0f, 1.1f, 0.0f,
-
-		0.0f, 1.1f, 0.0f,
-		0.0f, 1.1f, 0.0f,
-		0.0f, 1.1f, 0.0f,
-
-		0.0f, 0.0f, 1.0f,
-		0.0f, 0.0f, 1.0f,
-		0.0f, 0.0f, 1.0f,
-	};
-	
-}
 
 Graphic::Renderer::Renderer() :
-	  transMatLoc(-1)
+	  camera(nullptr)
 	, skyBox(nullptr)
-{};
+	, transMatLoc(-1)
+	, modelSubroutine(0)
+	, lightSubroutine(0)
+{
+	normalTextureSubroutines[0] = normalTextureSubroutines[1] = 0;
+	noNormalTextureSubroutines[0] = noNormalTextureSubroutines[1] = 0;
+};
 
 int Graphic::Renderer::Init() 
 {
@@ -153,7 +54,7 @@ void Graphic::Renderer::Draw(float angle)
 
 		models[i].slopeAngle.y = angle;
 		models[i].CalculateTransformMat();
-		SetTransMatrix(models[i].transformMat);
+		SetTransMatrix(camera->GetViewProjMat() * models[i].GetModelMat());
 		models[i].LoadModelUniforms(*GetShaderProgramWithType(ShaderProgram::Type::Main));
 		models[i].Draw(Settings::Instance().resources);
 		

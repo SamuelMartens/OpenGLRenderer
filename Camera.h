@@ -29,14 +29,34 @@ public:
 	{
 		assert(glm::isNormalized(newDir, 0.0002f));
 	};
+	Camera(const Camera&) = delete;
+	void operator=(const Camera&) = delete;
 	~Camera() = default;
 
 	/* Getters */
 	glm::vec3 GetPosition() const noexcept { return position; };
 	glm::vec3 GetDirection() const noexcept { return direction; };
 	const std::unique_ptr<Viewport>& GetViewport() const noexcept { return viewport; };
-	std::unique_ptr<Viewport>& GetViewport() noexcept { return viewport; };
-	
+	std::unique_ptr<Viewport>& GetViewport()
+	{
+		// Here to avoid code duplication for const and non const getter.
+		// This code is madness but I trust Scott Meyer, as it is his advice :)
+		return const_cast<std::unique_ptr<Viewport>&>(
+			static_cast<const Camera&>(*this).GetViewport());
+	};
+	const glm::mat4& GetViewMat()
+	{
+		if (!updated)
+			CalculateViewMatrix();
+		return viewMat;
+	}
+	glm::mat4 GetViewProjMat()
+	{
+		assert(viewport.get());
+		return viewport->GetProjectionMat() * GetViewMat();
+	}
+
+		
 	/* Setters */
 	void SetDirection(const glm::vec3& newDir)
 	{
@@ -54,7 +74,12 @@ public:
 	bool IsUpdated() const noexcept { return updated; };
 
 private:
-	void CalculateViewMatrix();
+
+	void CalculateViewMatrix()
+	{
+		viewMat = ext_glm::move(-position) *  ext_glm::rotateXYZ(-direction);
+		updated = true;
+	};
 	
 	glm::vec3 position;
 	glm::vec3 direction;

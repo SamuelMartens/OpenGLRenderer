@@ -13,11 +13,10 @@
 #include "Settings.h"
 #include "ShaderProgram.h"
 #include "CubeTexture.h"
+#include "Camera.h"
 
 namespace Graphic 
 {
-	void InitFigure(std::vector<float>& vertices, std::vector<float>& colors);
-
 	enum class VertexAtrib
 	{
 		VertexCoors = 0,
@@ -30,7 +29,12 @@ namespace Graphic
 	class Renderer
 	{
 	public:
-		Renderer();
+		
+		Renderer(const Renderer&) = delete;
+		Renderer(const Renderer&&) = delete;
+		void Operator(const Renderer&) = delete;
+		void Operator (const Renderer&&) = delete;
+
 		~Renderer()
 		{
 			for (auto& model : models)
@@ -45,13 +49,10 @@ namespace Graphic
 		void ClearScreen() const;
 
 		/* Getters */
-		ShaderProgram* GetShaderProgramWithType(ShaderProgram::Type t)
+		static Renderer& Instance()
 		{
-			auto res = shaderPrograms.find(t);
-			if (shaderPrograms.end() == res)
-				return nullptr;
-
-			return res->second;
+			static Renderer instance;
+			return instance;
 		}
 		const ShaderProgram* GetShaderProgramWithType(ShaderProgram::Type t) const
 		{
@@ -60,6 +61,19 @@ namespace Graphic
 				return nullptr;
 
 			return res->second;
+		}
+		ShaderProgram* GetShaderProgramWithType(ShaderProgram::Type t)
+		{
+			// Here to avoid code duplication for const and non const getter.
+			// This code is madness but I trust Scott Meyer, as it is his advice :)
+			return const_cast<ShaderProgram*>(
+				static_cast<const Renderer&>(*this).GetShaderProgramWithType(t));
+		}
+		const std::unique_ptr<Camera>& GetCamera() const noexcept { return camera; };
+		std::unique_ptr<Camera>& GetCamera()
+		{
+			return const_cast<std::unique_ptr<Camera>&>(
+				static_cast<const Renderer&>(*this).GetCamera());
 		}
 
 		/* Set OpenGL data */
@@ -75,6 +89,11 @@ namespace Graphic
 
 			skyBox->material.SetTexture(std::make_shared<CubeTexture>(cubeTex));
 		}
+		void SetCamera(std::unique_ptr<Camera>&& newCam)
+		{
+			assert(newCam.get());
+			camera.swap(newCam);
+		}
 
 		/* Adding of elements */
 		void AddModel(const Model&& m);
@@ -88,11 +107,15 @@ namespace Graphic
 		bool HasShaderProgramWithType(ShaderProgram::Type t) const noexcept { return shaderPrograms.find(t) != shaderPrograms.end(); };
 
 	private:
+		Renderer();
+
 		std::map<ShaderProgram::Type, ShaderProgram*> shaderPrograms;
 
 		std::vector<Model> models;
 		std::vector<Light> lights;
 
+		std::unique_ptr<Camera> camera;
+		// DEBUG What is that?
 		std::unique_ptr<Model> skyBox;
 
 		/* Uniforms */ 

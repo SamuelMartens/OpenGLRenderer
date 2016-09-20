@@ -9,7 +9,10 @@ namespace ext_glm
 	glm::mat4 rotateX(const float angle);
 	glm::mat4 rotateZ(const float angle);
 	// Do all angles rotate here
-	glm::mat4 rotateXYZ(const)
+	inline glm::mat4 rotateXYZ(const glm::vec3& rotateVec)
+	{
+		return rotateY(rotateVec.y) * rotateX(rotateVec.x) * rotateZ(rotateVec.z);
+	};
 
 	/* Translation */
 	glm::mat4 move(const float x, const float y = 0, const float z = 0);
