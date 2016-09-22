@@ -10,6 +10,7 @@
 #include "NormalTexture.h"
 #include "Camera.h"
 #include "Viewport.h"
+#include "Utils.h"
 
 #include <GLFW/glfw3.h>
 #include <vector>
@@ -54,15 +55,14 @@ int main()
 		std::cout << "Failed to init renderer";
 	/* Renderer camera and viewport settings */
 	Graphic::Renderer::Instance().SetCamera(std::make_unique<Camera>(
-		  glm::vec3(0, 0, -1)
-		, glm::vec3(0, 0, 1)
+		  glm::vec3(0, 0, -2)
+		, glm::vec3(0, 0, 0)
 		, std::make_unique<Viewport>()));
 
 	std::unique_ptr<Viewport>& rendererVp = Graphic::Renderer::Instance().GetCamera()->GetViewport();
-	rendererVp->SetNear(0);
-	rendererVp->SetFar(1000);
-	rendererVp->SetAspect(0.5);
-	rendererVp->SetFov(1.5);
+	rendererVp->SetNearFar(0.01, 100);
+	rendererVp->SetAspect(1);
+	rendererVp->SetFov(Utils::DegToRad(90));
 
 	/* Settings change */
 
@@ -75,9 +75,9 @@ int main()
 	material.GetTextureWithType(Texture::Type::Diffuse)->Load("E:\\C++\\OpenGLtutorial\\Stormtrooper\\Stormtrooper_D.tga", *Graphic::Renderer::Instance().GetShaderProgramWithType(ShaderProgram::Type::Main));
 	//material.SetTexture(std::make_shared<TransparentTexture>(0.9));
 	//material.GetTextureWithType(Texture::Type::Transparent)->Load("E:\\C++\\OpenGLtutorial\\texture.jpg", shaderProgram);
-	material.SetTexture(std::make_shared<NormalTexture>());
+	//material.SetTexture(std::make_shared<NormalTexture>());
 	//material.GetTextureWithType(Texture::Type::Normal)->Load("E:\\C++\\OpenGLtutorial\\texture.jpg", *renderer.GetShaderProgramWithType(ShaderProgram::Type::Main));
-	material.GetTextureWithType(Texture::Type::Normal)->Load("E:\\C++\\OpenGLtutorial\\Stormtrooper\\Stormtrooper_N.tga", *Graphic::Renderer::Instance().GetShaderProgramWithType(ShaderProgram::Type::Main));
+	//material.GetTextureWithType(Texture::Type::Normal)->Load("E:\\C++\\OpenGLtutorial\\Stormtrooper\\Stormtrooper_N.tga", *Graphic::Renderer::Instance().GetShaderProgramWithType(ShaderProgram::Type::Main));
 	model.material = material;
 	model.LoadModel("E:\\C++\\OpenGLtutorial\\Stormtrooper\\Stormtrooper.obj");
 	//model.LoadModel("E:\\C++\\OpenGLtutorial\\resources\\sphere.obj");
@@ -94,7 +94,7 @@ int main()
 	l1.type = Light::LighType::PointLight;
 	Graphic::Renderer::Instance().AddLight(l1);
 
-	float angleY = 0;
+	long float angleY = 0;
 
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))

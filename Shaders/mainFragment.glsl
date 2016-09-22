@@ -6,6 +6,7 @@
 
 	const int lightMaxNumber = 5;
 	const int maxMixTexturesNumber = 5;
+	const vec3 defaultCameraPos = vec3(0.0, 0.0, -1.0);
 
 	// ======== END LIMITS =========
 
@@ -110,7 +111,7 @@
 		vec3 s = normalize(toObjectLocalCoord(vec3(lightSource.position - position)));
 		// DEBUG swap
 		//vec3 v = normalize(toObjectLocalCoord(-position.xyz));
-		vec3 v = normalize(toObjectLocalCoord(vec3(0.0, 0.0, -1.0) - position.xyz));
+		vec3 v = normalize(toObjectLocalCoord(defaultCameraPos - position.xyz));
 		vec3 r = reflect( -s, normal);
 	
 		// Half path vector optimization
@@ -138,7 +139,7 @@
 		spec = vec3(0.0);
 		if (sDotN > 0.0)
 		{
-			vec3 v = normalize(toObjectLocalCoord(-position.xyz));
+			vec3 v = normalize(toObjectLocalCoord(defaultCameraPos - position.xyz));
 			vec3 r = reflect(-s, normal);
 			diffuse = lightSource.intensityDiffuse * material.Kd * sDotN;
 			spec = lightSource.intensitySpecular * material.Ks * pow(max(dot(r,v) ,0.0), lightSource.shiness);
@@ -158,7 +159,7 @@
 			//vec3 h = normalize(v + s);
 			float sDotN = max( dot(s, normal), 0.0);
 			float spotFactor = pow( dot(-s, lightSource.direction), lightSource.coneShiness);
-			vec3 v = normalize(toObjectLocalCoord(-position.xyz));
+			vec3 v = normalize(toObjectLocalCoord(defaultCameraPos - position.xyz));
 			vec3 r = reflect(-s, normal);
 			vec3 diffuse = lightSource.intensityDiffuse * material.Kd * sDotN;
 			spec = lightSource.intensitySpecular * material.Ks * pow(max(dot(r,v) ,0.0), lightSource.shiness);

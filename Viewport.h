@@ -42,6 +42,7 @@ public:
 	/* Setter */
 	void SetNear(float val) noexcept { vpNear = val; updated = false; };
 	void SetFar(float val) noexcept { vpFar = val; updated = false; };
+	void SetNearFar(float newNear, float newFar) { vpNear = newNear; vpFar = newFar; updated = false; };
 	void SetAspect(float val) noexcept { aspect = val; updated = false; };
 	void SetFov(float val) noexcept { fov = val; updated = false; };
 
