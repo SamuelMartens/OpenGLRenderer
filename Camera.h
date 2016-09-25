@@ -51,9 +51,7 @@ public:
 	glm::mat4 GetViewProjMat()
 	{
 		assert(viewport.get());
-		// DEBUG swap
 		return viewport->GetProjectionMat() * GetViewMat();
-		//return GetViewMat();
 	}
 
 		

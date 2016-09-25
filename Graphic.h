@@ -3,6 +3,7 @@
 #include <vector>
 #include <memory>
 #include <map>
+#include <cassert>
 
 #include "gl_core_4_3.h"
 #include "glm\mat4x4.hpp"
@@ -46,7 +47,11 @@ namespace Graphic
 
 		/* Drawing */
 		void Draw(float angle);
-		void ClearScreen() const;
+		void ClearScreen() const 
+		{
+			glClearColor(0, 0, 0, 1);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		};
 
 		/* Getters */
 		static Renderer& Instance()
@@ -76,12 +81,17 @@ namespace Graphic
 				static_cast<const Renderer&>(*this).GetCamera());
 		}
 
-		/* Set OpenGL data */
-		void SetTransMatrix(glm::mat4 &transMat);
-		void LoadLightDataToOpenGL() const;
-		void ActivateAppropriteToModelSubroutines(const Model& model) const;
-
-		/* Other setters */
+		/* Setters */
+		
+		void SetTransMatrices(const glm::mat4& modelMat) const
+		{
+			// Set ModelViewProjection matrix
+			glUniformMatrix4fv(modelViewProjMatLoc, 1, GL_FALSE, &(camera->GetViewProjMat() * modelMat)[0][0]);
+			// Set Normal matrix
+			glUniformMatrix4fv(normalMatLoc, 1, GL_FALSE, &(glm::transpose(glm::inverse(camera->GetViewMat() * modelMat)))[0][0]);
+			// Set ModelView matrix
+			glUniformMatrix4fv(modelViewMatLoc, 1, GL_FALSE, &(camera->GetViewMat() * modelMat)[0][0]);
+		}
 		void SetSkyBoxTexture(const CubeTexture& cubeTex)
 		{
 			if (!skyBox.get())
@@ -95,12 +105,29 @@ namespace Graphic
 			camera.swap(newCam);
 		}
 
+		void LoadLightDataToOpenGL() const;
+		void ActivateAppropriteToModelSubroutines(const Model& model) const;
+
 		/* Adding of elements */
-		void AddModel(const Model&& m);
-		void AddModel(const Model& m);
-		void AddLight(const Light&& l);
-		void AddLight(const Light& l);
-		void AddLight(std::unique_ptr<Light> l);
+		void AddModel(const Model& m) 
+		{
+			models.push_back(m);
+			models.back().LoadGlData();
+		};
+		void AddLight(const Light& l) 
+		{
+			lights.push_back(l);
+			AddModel(lights.back().GetModel());
+			LoadLightDataToOpenGL();
+		};
+		void AddLight(std::unique_ptr<Light> l) 
+		{
+			assert(l.get());
+			lights.push_back(*l);
+			AddModel(lights.back().GetModel());
+			LoadLightDataToOpenGL();
+			l.release();
+		};
 		void AddShaderProgram(ShaderProgram* newShaderProg);
 
 
@@ -118,8 +145,10 @@ namespace Graphic
 		// DEBUG What is that?
 		std::unique_ptr<Model> skyBox;
 
-		/* Uniforms */ 
-		GLint transMatLoc;
+		/* Uniforms */
+		GLint normalMatLoc;
+		GLint modelViewMatLoc;
+		GLint modelViewProjMatLoc;
 		GLuint modelSubroutine;
 		GLuint lightSubroutine;
 

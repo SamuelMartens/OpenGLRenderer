@@ -16,7 +16,9 @@
 	out vec2 textureCoord;
 	out mat3 toObjectLocal;
 
-	uniform mat4 trans;
+	uniform mat4 modelViewProjMat;
+	uniform mat4 normalMat;
+	uniform mat4 modelViewMat;
 	
 	// CAST TO BOOL THIS UNIFORMS
 	uniform MaterialVertex materialVertex;
@@ -24,14 +26,14 @@
 	void main()
 	{
 		textureCoord = TextureCoord;
-		normal = normalize((trans * vec4(VertexNormal, 0.0)).xyz);
+		normal = normalize((normalMat * vec4(VertexNormal, 0.0)).xyz);
 		
 		vec3 tangent, bitangent;
 
 		if (bool(materialVertex.hasNormalTexture))
 		{
-			tangent = normalize((trans * vec4(VertexTangent, 0.0)).xyz);
-			bitangent = normalize((trans * vec4(VertexBitangent, 0.0)).xyz);
+			tangent = normalize((normalMat * vec4(VertexTangent, 0.0)).xyz);
+			bitangent = normalize((normalMat * vec4(VertexBitangent, 0.0)).xyz);
 
 			toObjectLocal = mat3(
 			tangent.x, bitangent.x, normal.x,
@@ -39,7 +41,7 @@
 			tangent.z, bitangent.z, normal.z);
 		}
 
-		position = trans * vec4(VertexPosition, 1.0);
+		position = modelViewMat * vec4(VertexPosition, 1.0);
 
-		gl_Position = position;		
+		gl_Position = modelViewProjMat * vec4(VertexPosition, 1.0);		
 	}	

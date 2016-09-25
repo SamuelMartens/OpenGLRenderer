@@ -18,7 +18,9 @@
 Graphic::Renderer::Renderer() :
 	  camera(nullptr)
 	, skyBox(nullptr)
-	, transMatLoc(-1)
+	, normalMatLoc(-1)
+	, modelViewMatLoc(-1)
+	, modelViewProjMatLoc(-1)
 	, modelSubroutine(0)
 	, lightSubroutine(0)
 {
@@ -54,7 +56,7 @@ void Graphic::Renderer::Draw(float angle)
 
 		models[i].slopeAngle.y = angle;
 		models[i].CalculateTransformMat();
-		SetTransMatrix(camera->GetViewProjMat() * models[i].GetModelMat());
+		SetTransMatrices(models[i].GetModelMat());
 		models[i].LoadModelUniforms(*GetShaderProgramWithType(ShaderProgram::Type::Main));
 		models[i].Draw(Settings::Instance().resources);
 		
@@ -63,7 +65,9 @@ void Graphic::Renderer::Draw(float angle)
 
 int Graphic::Renderer::InitUniforms()
 {
-	transMatLoc = glGetUniformLocation(GetShaderProgramWithType(ShaderProgram::Type::Main)->id, "trans");
+	modelViewProjMatLoc = glGetUniformLocation(GetShaderProgramWithType(ShaderProgram::Type::Main)->id, "modelViewProjMat");
+	modelViewMatLoc = glGetUniformLocation(GetShaderProgramWithType(ShaderProgram::Type::Main)->id, "modelViewMat");
+	normalMatLoc = glGetUniformLocation(GetShaderProgramWithType(ShaderProgram::Type::Main)->id, "normalMat");
 	modelSubroutine = glGetSubroutineIndex(GetShaderProgramWithType(ShaderProgram::Type::Main)->id, GL_FRAGMENT_SHADER, "PhongLight");
 	lightSubroutine = glGetSubroutineIndex(GetShaderProgramWithType(ShaderProgram::Type::Main)->id, GL_FRAGMENT_SHADER, "LighSourceLight");
 	normalTextureSubroutines[0] = glGetSubroutineIndex(GetShaderProgramWithType(ShaderProgram::Type::Main)->id, GL_FRAGMENT_SHADER, "TransformToObjectLocal");
@@ -79,54 +83,15 @@ int Graphic::Renderer::InitUniforms()
 		|| GL_INVALID_INDEX == noNormalTextureSubroutines[1])
 		std::cout << "Failed to get graphic subroutine index. \n ";
 
-	if (-1 == transMatLoc)
+	if (-1 == modelViewProjMatLoc
+		|| -1 == normalMatLoc
+		|| -1 == modelViewMatLoc)
+	{
+		std::cout << "Failed to get trans matrices loc";
 		return -1;
+	}
 
 	return 0;
-}
-
-void Graphic::Renderer::SetTransMatrix(glm::mat4 &transMat)
-{
-	glUniformMatrix4fv(transMatLoc, 1, GL_FALSE, &transMat[0][0]);
-}
-
-void Graphic::Renderer::ClearScreen() const
-{
-	glClearColor(0, 0, 0, 1);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-}
-
-void Graphic::Renderer::AddModel(const Model&& m)
-{
-	models.push_back(m);
-	models.back().LoadGlData();
-}
-
-void Graphic::Renderer::AddModel(const Model& m)
-{
-	models.push_back(m);
-	models.back().LoadGlData();
-}
-
-void Graphic::Renderer::AddLight(const Light&& l) 
-{
-	lights.push_back(l);
-	AddModel(lights.back().GetModel());
-	LoadLightDataToOpenGL();
-}
-
-void Graphic::Renderer::AddLight(const Light& l)
-{
-	lights.push_back(l);
-	AddModel(lights.back().GetModel());
-	LoadLightDataToOpenGL();
-}
-
-void Graphic::Renderer::AddLight(std::unique_ptr<Light> l)
-{
-	lights.push_back(*l);
-	AddModel(lights.back().GetModel());
-	LoadLightDataToOpenGL();
 }
 
 void Graphic::Renderer::LoadLightDataToOpenGL() const

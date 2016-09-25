@@ -75,9 +75,9 @@ int main()
 	material.GetTextureWithType(Texture::Type::Diffuse)->Load("E:\\C++\\OpenGLtutorial\\Stormtrooper\\Stormtrooper_D.tga", *Graphic::Renderer::Instance().GetShaderProgramWithType(ShaderProgram::Type::Main));
 	//material.SetTexture(std::make_shared<TransparentTexture>(0.9));
 	//material.GetTextureWithType(Texture::Type::Transparent)->Load("E:\\C++\\OpenGLtutorial\\texture.jpg", shaderProgram);
-	//material.SetTexture(std::make_shared<NormalTexture>());
+	material.SetTexture(std::make_shared<NormalTexture>());
 	//material.GetTextureWithType(Texture::Type::Normal)->Load("E:\\C++\\OpenGLtutorial\\texture.jpg", *renderer.GetShaderProgramWithType(ShaderProgram::Type::Main));
-	//material.GetTextureWithType(Texture::Type::Normal)->Load("E:\\C++\\OpenGLtutorial\\Stormtrooper\\Stormtrooper_N.tga", *Graphic::Renderer::Instance().GetShaderProgramWithType(ShaderProgram::Type::Main));
+	material.GetTextureWithType(Texture::Type::Normal)->Load("E:\\C++\\OpenGLtutorial\\Stormtrooper\\Stormtrooper_N.tga", *Graphic::Renderer::Instance().GetShaderProgramWithType(ShaderProgram::Type::Main));
 	model.material = material;
 	model.LoadModel("E:\\C++\\OpenGLtutorial\\Stormtrooper\\Stormtrooper.obj");
 	//model.LoadModel("E:\\C++\\OpenGLtutorial\\resources\\sphere.obj");
@@ -88,7 +88,7 @@ int main()
 	/* Add light */
 	Light l1, l2;
 	l1.SetDirection(glm::vec3(0, 0, 5));
-	l1.SetPosition(glm::vec4(0, 1, -1.0, 1));
+	l1.SetPosition(glm::vec4(0, 2, 0.0, 1));
 	l1.coneAngle = 50;
 	l1.coneShiness = 50;
 	l1.type = Light::LighType::PointLight;
