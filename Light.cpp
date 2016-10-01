@@ -8,6 +8,7 @@
 
 #include "model.h"
 #include "Light.h"
+#include "Settings.h"
 
 Light::Light() :
 direction(0, 0, 0),
@@ -18,8 +19,8 @@ intensityAmbient(0.02),
 intensityDiffuse(0.5),
 intensitySpecular(0.75)
 {
-	model.LoadModel("E:\\C++\\OpenGLtutorial\\resources\\sphere.obj");
-	model.type = Model::Type::lightModel;
+	model.LoadModel(Settings::Instance().resources.GetPathSphereModel().c_str());
+	model.SetType(Model::Type::lightModel);
 	NormalizeLightModel();
 };
 
@@ -32,8 +33,8 @@ Light::Light(glm::vec4& pos, glm::vec3& dir, LighType t) :
 	intensityDiffuse(0.5),
 	intensitySpecular(0.75)
 {
-	model.LoadModel("E:\\C++\\OpenGLtutorial\\resources\\sphere.obj");
-	model.type = Model::Type::lightModel;
+	model.LoadModel(Settings::Instance().resources.GetPathSphereModel().c_str());
+	model.SetType(Model::Type::lightModel);
 	model.position = pos;
 	NormalizeLightModel();
 };

@@ -1,10 +1,10 @@
 #include "Resources.h"
 
 #include <string>
+#include <memory>
 
 #include "Texture.h"
 #include "ShaderProgram.h"
-#include "model.h"
 
 void Resources::Init(const ShaderProgram& shaderProgram)
 {

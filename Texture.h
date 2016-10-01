@@ -24,6 +24,12 @@ public:
 		MixTexture = 4
 	};
 
+	explicit Texture(Texture::Type t) :
+		initialized(false)
+		, type(t)
+		, id(-1)
+	{};
+
 	virtual ~Texture() {};
 
 	/* Getters */
@@ -40,12 +46,13 @@ public:
 	};
 	
  	virtual int GetSamplerUniformLocation(const ShaderProgram& shaderProgram) const = 0; 
+	virtual int ActivateGLTextureSlot() const;
+	virtual void Load(std::string&& filePath, const ShaderProgram& shaderProgram);
+	// Empty virtual methods
+	virtual void LoadFewTextures(std::vector<std::string>&& filesPathes, const ShaderProgram& shaderProgram) {};
 	virtual void LoadUniforms(const ShaderProgram& shaderProgram) const {};
 	virtual void LoadGLBuffers(const Model& model) {};
 	virtual void CleanGLBuffers() noexcept {};
-	virtual int ActivateGLTextureSlot() const;
-	virtual void Load(std::string&& filePath, const ShaderProgram& shaderProgram);
-	virtual void LoadFewTextures(std::vector<std::string>&& filesPathes, const ShaderProgram& shaderProgram) {};
 
 	void ClearGLData() noexcept
 	{
@@ -54,12 +61,6 @@ public:
 	}
 
 protected:
-
-	explicit Texture(Texture::Type t) :
-		initialized(false)
-		, type(t)
-		, id(-1)
-	{};
 
 	Type type;
 	GLuint id;

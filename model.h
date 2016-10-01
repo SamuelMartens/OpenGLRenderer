@@ -55,13 +55,34 @@ public:
 		return const_cast<glm::mat4&>(
 			static_cast<const Model&>(*this).GetModelMat());
 	};
+	Type GetType() const noexcept { return type; };
+	const std::vector<float>& GetVertices() const noexcept { return vertices; };
+	std::vector<float>& GetVertices()
+	{
+		return const_cast<std::vector<float>&>(
+			static_cast<const Model&>(*this).GetVertices());
+	}
+	const std::vector<float>& GetNormals() const noexcept { return normals; };
+	std::vector<float>& GetNormals()
+	{
+		return const_cast<std::vector<float>&>(
+			static_cast<const Model&>(*this).GetNormals());
+	}
+	const std::vector<float>& GetTexCoords() const noexcept { return texturecoords; };
+	std::vector<float>& GetTexCoords()
+	{
+		return const_cast<std::vector<float>&>(
+			static_cast<const Model&>(*this).GetTexCoords());
+	}
+	const std::vector<unsigned>& GetIndices() const noexcept { return indices; };
+	std::vector<unsigned>& GetIndices()
+	{
+		return const_cast<std::vector<unsigned>&>(
+			static_cast<const Model&>(*this).GetIndices());
+	}
 
-	/* Data */
-	Type type;
-	std::vector<float> vertices;
-	std::vector<float> normals;
-	std::vector<float> texturecoords;
-	std::vector<unsigned int> indices;
+	/* Setters */
+	void SetType(Type newType) { type = newType; };
 
 	// 0 - min, 1 - max
 	std::array<glm::vec4, 2> boundingBox;
@@ -80,6 +101,13 @@ public:
 	GLuint texturecoordsBuffer;
 
 private:
+
+	/* Data */
+	Type type;
+	std::vector<float> vertices;
+	std::vector<float> normals;
+	std::vector<float> texturecoords;
+	std::vector<unsigned> indices;
 
 	/* Matrix */
 	glm::mat4 transformMat;

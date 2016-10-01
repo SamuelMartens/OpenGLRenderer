@@ -104,7 +104,13 @@ namespace Graphic
 			assert(newCam.get());
 			camera.swap(newCam);
 		}
-
+		void SetSkyBoxTexture(std::unique_ptr<CubeTexture>&& cubeTex)
+		{
+			assert(cubeTex.get());
+			skyBox->material.SetTexture(std::move(cubeTex));
+		}
+		
+		/* OpenGL loaders */
 		void LoadLightDataToOpenGL() const;
 		void ActivateAppropriteToModelSubroutines(const Model& model) const;
 
@@ -142,7 +148,6 @@ namespace Graphic
 		std::vector<Light> lights;
 
 		std::unique_ptr<Camera> camera;
-		// DEBUG What is that?
 		std::unique_ptr<Model> skyBox;
 
 		/* Uniforms */
@@ -151,9 +156,11 @@ namespace Graphic
 		GLint modelViewProjMatLoc;
 		GLuint modelSubroutine;
 		GLuint lightSubroutine;
-
+		GLuint drawObjectSubroutines[2];
 		GLuint normalTextureSubroutines[2];
 		GLuint noNormalTextureSubroutines[2];
+		// 0 - phongSub 1 - lightSourceSub 2 - skyBoxSub
+		GLuint shadeModelSubroutine[3];
 
 	};
 }

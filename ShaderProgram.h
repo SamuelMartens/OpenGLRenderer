@@ -12,8 +12,7 @@ public:
 
 	enum class Type
 	{
-		Main,
-		SkyBox
+		Main
 	};
 
 	explicit ShaderProgram(Type t):

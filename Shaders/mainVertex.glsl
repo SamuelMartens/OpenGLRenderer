@@ -10,24 +10,29 @@
 		// Cast this to bool
 		int hasNormalTexture;
 	};
+	
+	subroutine void drawObjectType();
 
 	out vec3 normal;
 	out vec4 position;	
 	out vec2 textureCoord;
 	out mat3 toObjectLocal;
+	out vec3 reflectDir;
+
+	subroutine uniform drawObjectType drawObject;
 
 	uniform mat4 modelViewProjMat;
 	uniform mat4 normalMat;
 	uniform mat4 modelViewMat;
 	
-	// CAST TO BOOL THIS UNIFORMS
 	uniform MaterialVertex materialVertex;
 
-	void main()
+	subroutine (drawObjectType)
+	void DrawModel()
 	{
 		textureCoord = TextureCoord;
 		normal = normalize((normalMat * vec4(VertexNormal, 0.0)).xyz);
-		
+
 		vec3 tangent, bitangent;
 
 		if (bool(materialVertex.hasNormalTexture))
@@ -42,6 +47,17 @@
 		}
 
 		position = modelViewMat * vec4(VertexPosition, 1.0);
+	}
 
+	subroutine (drawObjectType)
+	void DrawSkyBox()
+	{
+		reflectDir = VertexPosition;
+	}
+
+	void main()
+	{
+		
+		drawObject();
 		gl_Position = modelViewProjMat * vec4(VertexPosition, 1.0);		
 	}	

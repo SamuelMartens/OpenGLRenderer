@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <memory>
 
 #include "DiffuseTexture.h"
 #include "TransparentTexture.h"
@@ -9,27 +10,26 @@
 class Resources
 {
 public:
+
 	Resources() :
 		  initialized(false)
-		, pathToSkyBoxModel("E:\\C++\\OpenGLtutorial\\resources\\cube.obj")
+		, pathSphereModel("E:\\C++\\OpenGLtutorial\\resources\\sphere.obj")
 	{};
 
 	void Init(const ShaderProgram& shaderProgram);
 
 	/* Setters */
-	void SetSkyBoxModelPath(std::string&& newPath) { pathToSkyBoxModel = newPath; };
 
 	/* Getters */
 	bool IsInitialized() const noexcept { return initialized; };
-	const std::string& GetPathToSkyBoxModel() const noexcept { return pathToSkyBoxModel; };
+	const std::string& GetPathSphereModel() const noexcept { return pathSphereModel; };
 
 	DiffuseTexture default_texture;
 	TransparentTexture default_transparent_texture;
 	
 
 private:
-	
-	std::string pathToSkyBoxModel;
+	const std::string pathSphereModel;
 	bool initialized;
 };
 

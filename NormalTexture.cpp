@@ -51,7 +51,7 @@ void NormalTexture::CalculateTangAndBitang(const Model& model)
 	constexpr unsigned int coordsOfOneVertex = 3;
 	constexpr unsigned int coordsOfOneText = 2;
 
-	if (model.texturecoords.empty())
+	if (model.GetTexCoords().empty())
 	{
 		std::cout << "Tangens fot normal texture couldn't be calculated. \n";
 		return;
@@ -60,57 +60,57 @@ void NormalTexture::CalculateTangAndBitang(const Model& model)
 	std::unordered_map<unsigned, glm::vec3> tangentsMap;
 	std::unordered_map<unsigned, glm::vec3> bitangetsMap;
 
-	for (unsigned i = 0; i < model.indices.size(); i += coordsOfOneVertex)
+	for (unsigned i = 0; i < model.GetIndices().size(); i += coordsOfOneVertex)
 	{
-		const unsigned indP0 = model.indices[i] * coordsOfOneVertex;
-		const unsigned indP1 = model.indices[i + 1] * coordsOfOneVertex;
-		const unsigned indP2 = model.indices[i + 2] * coordsOfOneVertex;
-		const unsigned indTP0 = model.indices[i] * coordsOfOneText;
-		const unsigned indTP1 = model.indices[i + 1] * coordsOfOneText;
-		const unsigned indTP2 = model.indices[i + 2] * coordsOfOneText;
+		const unsigned indP0 = model.GetIndices()[i] * coordsOfOneVertex;
+		const unsigned indP1 = model.GetIndices()[i + 1] * coordsOfOneVertex;
+		const unsigned indP2 = model.GetIndices()[i + 2] * coordsOfOneVertex;
+		const unsigned indTP0 = model.GetIndices()[i] * coordsOfOneText;
+		const unsigned indTP1 = model.GetIndices()[i + 1] * coordsOfOneText;
+		const unsigned indTP2 = model.GetIndices()[i + 2] * coordsOfOneText;
 
 
 		// Vertices of our triangle ( X Y Z )
-		glm::vec3 p0(model.vertices[indP0], model.vertices[indP0 + 1], model.vertices[indP0 + 2]);
-		glm::vec3 p1(model.vertices[indP1], model.vertices[indP1 + 1], model.vertices[indP1 + 2]);
-		glm::vec3 p2(model.vertices[indP2], model.vertices[indP2 + 1], model.vertices[indP2 + 2]);
+		glm::vec3 p0(model.GetVertices()[indP0], model.GetVertices()[indP0 + 1], model.GetVertices()[indP0 + 2]);
+		glm::vec3 p1(model.GetVertices()[indP1], model.GetVertices()[indP1 + 1], model.GetVertices()[indP1 + 2]);
+		glm::vec3 p2(model.GetVertices()[indP2], model.GetVertices()[indP2 + 1], model.GetVertices()[indP2 + 2]);
 
 		// Texcoord of our triangle vertices ( U V )
-		glm::vec2 texP0(model.texturecoords[indTP0], model.texturecoords[indTP0 + 1]);
-		glm::vec2 texP1(model.texturecoords[indTP1], model.texturecoords[indTP1 + 1]);
-		glm::vec2 texP2(model.texturecoords[indTP2], model.texturecoords[indTP2 + 1]);
+		glm::vec2 texP0(model.GetTexCoords()[indTP0], model.GetTexCoords()[indTP0 + 1]);
+		glm::vec2 texP1(model.GetTexCoords()[indTP1], model.GetTexCoords()[indTP1 + 1]);
+		glm::vec2 texP2(model.GetTexCoords()[indTP2], model.GetTexCoords()[indTP2 + 1]);
 
 		// Normals of our triangle ( X Y Z )
-		glm::vec3 normP0(model.normals[indP0], model.normals[indP0 + 1], model.normals[indP0 + 2]);
-		glm::vec3 normP1(model.normals[indP1], model.normals[indP1 + 1], model.normals[indP1 + 2]);
-		glm::vec3 normP2(model.normals[indP2], model.normals[indP2 + 1], model.normals[indP2 + 2]);
+		glm::vec3 normP0(model.GetNormals()[indP0], model.GetNormals()[indP0 + 1], model.GetNormals()[indP0 + 2]);
+		glm::vec3 normP1(model.GetNormals()[indP1], model.GetNormals()[indP1 + 1], model.GetNormals()[indP1 + 2]);
+		glm::vec3 normP2(model.GetNormals()[indP2], model.GetNormals()[indP2 + 1], model.GetNormals()[indP2 + 2]);
 
 		// Calculate tangent vec for p0
 		glm::mat3 tempMat = glm::inverse(CreateVerticesDiffMat(p0, p1, p2, normP0));
 		glm::vec3 tempVec = CreateTextureCoordDiffVec(texP0.y, texP1.y, texP2.y) * tempMat;
-		InsertTangentInMap(tangentsMap, std::pair<unsigned, glm::vec3>(model.indices[i], tempVec));
+		InsertTangentInMap(tangentsMap, std::pair<unsigned, glm::vec3>(model.GetIndices()[i], tempVec));
 		tempVec = CreateTextureCoordDiffVec(texP0.x, texP1.x, texP2.x) * tempMat;
-		InsertTangentInMap(bitangetsMap, std::pair<unsigned, glm::vec3>(model.indices[i], tempVec));
+		InsertTangentInMap(bitangetsMap, std::pair<unsigned, glm::vec3>(model.GetIndices()[i], tempVec));
 
 		// Calculate tangent vec for p1
 		tempMat = glm::inverse(CreateVerticesDiffMat(p1, p2, p0, normP1));
 		tempVec = CreateTextureCoordDiffVec(texP1.y, texP2.y, texP0.y) * tempMat;
-		InsertTangentInMap(tangentsMap, std::pair<unsigned, glm::vec3>(model.indices[i + 1], tempVec));
+		InsertTangentInMap(tangentsMap, std::pair<unsigned, glm::vec3>(model.GetIndices()[i + 1], tempVec));
 		tempVec = CreateTextureCoordDiffVec(texP1.x, texP2.x, texP0.x) * tempMat;
-		InsertTangentInMap(bitangetsMap, std::pair<unsigned, glm::vec3>(model.indices[i + 1], tempVec));
+		InsertTangentInMap(bitangetsMap, std::pair<unsigned, glm::vec3>(model.GetIndices()[i + 1], tempVec));
 
 		// Calculate tangent for p2
 		tempMat = glm::inverse(CreateVerticesDiffMat(p2, p0, p1, normP2));
 		tempVec = CreateTextureCoordDiffVec(texP2.y, texP0.y, texP1.y) * tempMat;
-		InsertTangentInMap(tangentsMap, std::pair<unsigned, glm::vec3>(model.indices[i + 2], tempVec));
+		InsertTangentInMap(tangentsMap, std::pair<unsigned, glm::vec3>(model.GetIndices()[i + 2], tempVec));
 		tempVec = CreateTextureCoordDiffVec(texP2.x, texP0.x, texP1.x) * tempMat;
-		InsertTangentInMap(bitangetsMap, std::pair<unsigned, glm::vec3>(model.indices[i + 2], tempVec));
+		InsertTangentInMap(bitangetsMap, std::pair<unsigned, glm::vec3>(model.GetIndices()[i + 2], tempVec));
 	}
 
 	tangents.clear();
-	tangents.resize(model.normals.size());
+	tangents.resize(model.GetNormals().size());
 	bitangets.clear();
-	bitangets.resize(model.normals.size());
+	bitangets.resize(model.GetNormals().size());
 
 	// Fill our tangent and bitangents vectors
 	assert(bitangetsMap.size() == tangentsMap.size());

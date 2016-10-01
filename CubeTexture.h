@@ -21,7 +21,8 @@ public:
 		glBindTexture(GL_TEXTURE_CUBE_MAP, id);
 	};
 
-	virtual int GetSamplerUniformLocation(const ShaderProgram& shaderProgram) const override {};
 	virtual void LoadFewTextures(std::vector<std::string>&& filesPathes, const ShaderProgram& shaderProgram) override;
+	virtual int GetSamplerUniformLocation(const ShaderProgram& shaderProgram) const override {};
+
 };
 

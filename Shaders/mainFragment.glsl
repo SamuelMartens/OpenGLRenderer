@@ -78,12 +78,14 @@
 	uniform int lightSourcesNumber;
 	uniform int useEffects;
 	uniform Material material;
+	//uniform samplerCube skyBoxTexture;
 	
 
 	in vec4 position;
     in vec3 normal;
 	in vec2 textureCoord;
 	in mat3 toObjectLocal;
+	in vec3 reflectDir;
 
 	//======== UNIFORM DATA END ========
 	
@@ -280,6 +282,14 @@
 		return vec3(0.2, 1.0, 0.2);
 	}
 
+	//subroutine (shadeModelType)
+	//vec3 SkyBoxLight(LightSource lightSources[lightMaxNumber], vec4 position, vec3 normal)
+	//{
+		//vec4 skyBoxColor = texture(skyBoxTexture, reflectDir);
+		//return vec3(skyBoxColor.x, skyBoxColor.y, skyBoxColor.z);
+		//return vec3(0.0, 1.0, 2.0);
+	//}
+
 	// This subroutine if for getting right normal vector. From texture or not
 	subroutine (getNormalVecType)
 	vec3 GetNormalFromTexture(vec3 originalNormal)
@@ -299,10 +309,10 @@
 	void main()
 	{	
 
-		vec3 lightIntensity;
+		vec3 finalFragColor;
 		if (!gl_FrontFacing)
-			lightIntensity = shadeModel(lightSources, position, normal);
+			finalFragColor = shadeModel(lightSources, position, normal);
 		else
-			lightIntensity = shadeModel(lightSources, position, -normal);
-		FragColor=vec4(lightIntensity , 1.0);
+			finalFragColor = shadeModel(lightSources, position, -normal);
+		FragColor=vec4(finalFragColor , 1.0);
 	}

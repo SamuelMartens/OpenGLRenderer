@@ -36,25 +36,25 @@ namespace
 			numPositions += shape.mesh.positions.size();
 		}
 
-		m.vertices.reserve(numPositions);
-		m.normals.reserve(numPositions);
-		m.texturecoords.reserve(numPositions);
-		m.indices.reserve(numPositions / 3);
+		m.GetVertices().reserve(numPositions);
+		m.GetNormals().reserve(numPositions);
+		m.GetTexCoords().reserve(numPositions);
+		m.GetIndices().reserve(numPositions / 3);
 
 		for (auto& shape: shapes)
 		{
-			m.vertices.insert(m.vertices.end(), shape.mesh.positions.begin(), shape.mesh.positions.end());
-			m.normals.insert(m.normals.end(), shape.mesh.normals.begin(), shape.mesh.normals.end());
-			m.texturecoords.insert(m.texturecoords.end(), shape.mesh.texcoords.begin(), shape.mesh.texcoords.end());
-			m.indices.insert(m.indices.end(), shape.mesh.indices.begin(), shape.mesh.indices.end());
+			m.GetVertices().insert(m.GetVertices().end(), shape.mesh.positions.begin(), shape.mesh.positions.end());
+			m.GetNormals().insert(m.GetNormals().end(), shape.mesh.normals.begin(), shape.mesh.normals.end());
+			m.GetTexCoords().insert(m.GetTexCoords().end(), shape.mesh.texcoords.begin(), shape.mesh.texcoords.end());
+			m.GetIndices().insert(m.GetIndices().end(), shape.mesh.indices.begin(), shape.mesh.indices.end());
 		}
 
-		m.texturecoords.shrink_to_fit();
-		m.vertices.shrink_to_fit();
-		m.normals.shrink_to_fit();
-		m.indices.shrink_to_fit();
+		m.GetTexCoords().shrink_to_fit();
+		m.GetVertices().shrink_to_fit();
+		m.GetNormals().shrink_to_fit();
+		m.GetIndices().shrink_to_fit();
 
-		ReverseTextureCoord(m.texturecoords);
+		ReverseTextureCoord(m.GetTexCoords());
 	}
 }
 
